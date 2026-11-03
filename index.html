@@ -120,6 +120,8 @@ h2.display { font-size: clamp(34px, 5vw, 54px); }
 .brand:hover .brand-mark { border-radius: 8px 50% 50% 50%; transform: rotate(-8deg); }
 .brand-name { font-family: var(--f-display); font-size: 19px; }
 .nav-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.menu-btn { display: none; font: 700 15px/1 var(--f-body); color: var(--ink); background: var(--surface); border: 1.5px solid var(--ink); border-radius: 999px; padding: 10px 16px; min-height: 44px; }
+.menu-btn[aria-expanded="true"] { background: var(--ink); color: var(--bg); }
 .nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 2px; flex-wrap: wrap; }
 .nav ul a {
   text-decoration: none; font-size: 15px; font-weight: 600; padding: 8px 12px; border-radius: 999px;
@@ -497,15 +499,30 @@ footer .mono { font: 500 12px var(--f-mono); }
   .sticky { position: static; transform: rotate(-2deg); }
 }
 @media (max-width: 640px) {
+  .menu-btn { display: inline-flex; align-items: center; }
+  .nav-right { display: none; width: 100%; flex-direction: column; align-items: stretch; gap: 12px; padding-block: 4px 8px; }
+  .nav-right.open { display: flex; }
+  .nav ul { flex-direction: column; gap: 2px; }
+  .nav ul a { font-size: 18px; padding: 12px 14px; width: 100%; }
+  .calm-btn { align-self: flex-start; }
+  .hero .label, .home-label, .toolbar, .selected-ring, .hi-note, .gap-measure, .hero-aside .hand,
+  .sticker, .drag-hint, .band .deco, .band .label, .tile-link .deco, .explore-head .label, .page .label-top { display: none !important; }
+  .name-block { margin-top: 28px; }
+  .hero-sub { margin-top: 24px; }
+  .hero-frame { padding: 24px 20px 28px; }
+  .tile-link, .tile-link.wide { min-height: 0; padding: 20px; }
+  .tile-link .mono { display: none; }
+  .band { padding: 28px 22px; }
+  .sticky { font-size: 21px; padding: 14px 16px; width: auto; }
   body { font-size: 16px; }
   .tiles { grid-template-columns: 1fr; }
-  .tile-link, .tile-link.wide { grid-column: span 1; min-height: 190px; }
+  .tile-link, .tile-link.wide { grid-column: span 1; }
   .work-grid { grid-template-columns: 1fr; }
   .work-grid > article:nth-child(even) { margin-top: 0; }
   .flow { grid-template-columns: 1fr; }
   .step::after, .step::before { display: none; }
   .hi-note { top: -52px; left: auto; right: 0; font-size: 24px; }
-  .brand-name { display: none; }
+  .brand-name { font-size: 17px; }
   .now div { grid-template-columns: 1fr; gap: 2px; }
   .toolbar button kbd { display: none; }
   .s-burst { display: none; }
@@ -531,7 +548,8 @@ footer .mono { font: 500 12px var(--f-mono); }
       <span class="brand-name">Minnie Marin Lopez</span>
       <span class="sr-only">Minnie Marin Lopez, home</span>
     </a>
-    <div class="nav-right">
+    <button type="button" class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="navRight">Menu</button>
+    <div class="nav-right" id="navRight">
       <nav aria-label="Main">
         <ul>
           <li><a href="#work" data-cursor="see work" style="--dotc: var(--c-blue); --dotink: #FFFFFF"><i aria-hidden="true"></i>Work</a></li>
@@ -552,7 +570,7 @@ footer .mono { font: 500 12px var(--f-mono); }
   <section class="page" data-page="home" data-color="--c-pink" aria-labelledby="t-home">
     <div class="wrap wide">
       <div>
-        <div class="label">Home / Desktop — 1440 × auto</div>
+        <div class="label home-label">Home / Desktop — 1440 × auto</div>
         <div class="hero-frame" id="heroFrame">
           <canvas id="doodle" aria-hidden="true" data-cursor="drawing"></canvas>
           <div class="doodle-hint hand" aria-hidden="true">draw anything. press V to stop.</div>
@@ -563,7 +581,7 @@ footer .mono { font: 500 12px var(--f-mono); }
           <div class="sticker s-blob shape-blob" aria-hidden="true" data-cursor="drag me"></div>
 
           <div class="hero-top">
-            <span class="status"><i aria-hidden="true"></i>Open to UI/UX opportunities</span>
+            <span class="status"><i aria-hidden="true"></i>Open to UI/UX roles</span>
             <div class="tools-col">
             <div class="toolbar" role="toolbar" aria-label="Doodle tools">
               <button type="button" id="toolMove" aria-pressed="true" data-cursor="move tool">Move <kbd>V</kbd></button>
@@ -590,11 +608,11 @@ footer .mono { font: 500 12px var(--f-mono); }
 
           <div class="hero-sub">
             <div>
-              <p class="role">UI/UX Designer · Interaction · Visual · Research</p>
-              <p class="intro">I design interfaces that feel <span class="hl">clear</span>, considered, and a little bit delightful. I sweat the small moments so the big ones feel easy.</p>
+              <p class="role">UI/UX Designer</p>
+              <p class="intro">I design apps and websites that are <span class="hl">easy to use</span> and nice to look at.</p>
             </div>
             <div class="hero-aside">
-              <span class="hand" aria-hidden="true">psst… try the pen tool ↑</span>
+              <span class="hand" aria-hidden="true">try the pen tool ↑</span>
               <div class="cta-row">
                 <a class="btn btn-solid" href="#work" data-cursor="let's go">See my work →</a>
                 <a class="btn btn-ghost" href="#contact" data-cursor="say hi">Get in touch</a>
@@ -608,7 +626,7 @@ footer .mono { font: 500 12px var(--f-mono); }
         <div class="explore-head">
           <div>
             <div class="label" style="margin-bottom:12px">Pages / Explore</div>
-            <h2 class="display">Pick a page, any page</h2>
+            <h2 class="display">Have a look around</h2>
           </div>
         </div>
         <div class="tiles">
@@ -616,31 +634,31 @@ footer .mono { font: 500 12px var(--f-mono); }
             <span class="deco shape-burst" style="width:240px;height:240px;right:-50px;top:-60px;background:var(--c-violet)" aria-hidden="true"></span>
             <span class="mono">Page · Work</span>
             <span><strong>Selected work</strong></span>
-            <span class="row"><span>Case studies in product and interface design.</span><span class="arrow" aria-hidden="true">→</span></span>
+            <span class="row"><span>Projects and case studies.</span><span class="arrow" aria-hidden="true">→</span></span>
           </a>
           <a class="tile-link" href="#process" style="--c: var(--c-orange)" data-cursor="how I work">
             <span class="deco" style="width:150px;height:150px;right:-40px;top:-40px;border-radius:50%;background:var(--c-yellow)" aria-hidden="true"></span>
             <span class="mono">Page · Process</span>
             <span><strong>Process</strong></span>
-            <span class="row"><span>How I go from messy to obvious.</span><span class="arrow" aria-hidden="true">→</span></span>
+            <span class="row"><span>How I approach a project.</span><span class="arrow" aria-hidden="true">→</span></span>
           </a>
           <a class="tile-link" href="#playground" style="--c: var(--c-pink)" data-cursor="have fun">
             <span class="deco shape-flower" style="width:150px;height:150px;right:-36px;top:-36px;--c:var(--c-orange)" aria-hidden="true"></span>
             <span class="mono">Page · Playground</span>
             <span><strong>Playground</strong></span>
-            <span class="row"><span>Tiny interactions to poke at.</span><span class="arrow" aria-hidden="true">→</span></span>
+            <span class="row"><span>Small things I built for fun.</span><span class="arrow" aria-hidden="true">→</span></span>
           </a>
           <a class="tile-link" href="#about" style="--c: var(--c-lime)" data-cursor="hello">
             <span class="deco shape-blob" style="width:150px;height:130px;right:-30px;top:-30px;background:var(--c-pink)" aria-hidden="true"></span>
             <span class="mono">Page · About</span>
             <span><strong>About</strong></span>
-            <span class="row"><span>Who I am and what I care about.</span><span class="arrow" aria-hidden="true">→</span></span>
+            <span class="row"><span>A bit about me.</span><span class="arrow" aria-hidden="true">→</span></span>
           </a>
           <a class="tile-link" href="#contact" style="--c: var(--c-violet)" data-cursor="say hi">
             <span class="deco shape-burst" style="width:160px;height:160px;right:-40px;top:-40px;background:var(--c-lime)" aria-hidden="true"></span>
             <span class="mono">Page · Contact</span>
             <span><strong>Contact</strong></span>
-            <span class="row"><span>Say hello. I read everything.</span><span class="arrow" aria-hidden="true">→</span></span>
+            <span class="row"><span>Get in touch.</span><span class="arrow" aria-hidden="true">→</span></span>
           </a>
         </div>
       </div>
@@ -656,8 +674,8 @@ footer .mono { font: 500 12px var(--f-mono); }
         <span class="deco" style="width:120px;height:120px;right:22%;bottom:-50px;border-radius:50%;background:var(--c-pink)" aria-hidden="true"></span>
         <div class="label">Page / Work</div>
         <h1 class="display" id="t-work" tabindex="-1">Selected work</h1>
-        <p>A few projects I'm proud of, from first sketch to shipped interface.</p>
-        <div class="sticky" aria-hidden="true">Case studies are in the oven. Check back soon!</div>
+        <p>Case studies are coming soon. In the meantime, feel free to reach out.</p>
+        <div class="sticky" aria-hidden="true">Coming soon!</div>
       </header>
 
       <div class="work-grid">
@@ -714,26 +732,26 @@ footer .mono { font: 500 12px var(--f-mono); }
         <span class="deco" style="width:300px;height:300px;right:-70px;top:-80px;border-radius:50%;background:var(--c-yellow)" aria-hidden="true"></span>
         <span class="deco shape-flower" style="width:150px;height:150px;right:24%;bottom:-40px;--c:var(--c-pink)" aria-hidden="true"></span>
         <div class="label">Page / Process</div>
-        <h1 class="display" id="t-process" tabindex="-1">From messy to obvious</h1>
-        <p>Every project is different, but the path usually looks something like this, with plenty of loops back.</p>
+        <h1 class="display" id="t-process" tabindex="-1">How I work</h1>
+        <p>Most of my projects follow these four steps. I often go back and forth between them.</p>
       </header>
 
       <div>
         <div class="label" style="margin-bottom:24px">Flow / How I work</div>
         <ol class="flow" style="list-style:none;margin:0;padding:0">
-          <li class="step"><div class="node" style="--c: var(--c-pink)">01</div><h2>Listen</h2><p>Interviews, audits and quiet observation to find the real problem.</p></li>
-          <li class="step"><div class="node" style="--c: var(--c-orange)">02</div><h2>Map</h2><p>User flows, journeys and information architecture before any pixels.</p></li>
-          <li class="step"><div class="node" style="--c: var(--c-lime)">03</div><h2>Make</h2><p>Sketches, wireframes, then high-fidelity prototypes you can click.</p></li>
-          <li class="step"><div class="node" style="--c: var(--c-violet)">04</div><h2>Test</h2><p>Usability sessions, honest feedback, and another round of polish.</p></li>
+          <li class="step"><div class="node" style="--c: var(--c-pink)">01</div><h2>Research</h2><p>I talk to users and look at what already exists to understand the problem.</p></li>
+          <li class="step"><div class="node" style="--c: var(--c-orange)">02</div><h2>Plan</h2><p>I map out user flows and how the content should be organized.</p></li>
+          <li class="step"><div class="node" style="--c: var(--c-lime)">03</div><h2>Design</h2><p>I sketch, make wireframes, then build clickable prototypes.</p></li>
+          <li class="step"><div class="node" style="--c: var(--c-violet)">04</div><h2>Test</h2><p>I watch people use it, find what's confusing and fix it.</p></li>
         </ol>
       </div>
 
       <div>
         <div class="label" style="margin-bottom:18px">Components / Principles</div>
         <div class="principles">
-          <div class="principle" data-select><span class="mark shape-burst" style="--c: var(--c-lime);background:var(--c)" aria-hidden="true"></span><h3>Clarity over cleverness</h3><p>If someone has to stop and think about the interface, the interface has more work to do.</p></div>
-          <div class="principle" data-select><span class="mark" style="background:var(--c-blue);border-radius:50%" aria-hidden="true"></span><h3>Accessible by default</h3><p>Contrast, focus states and keyboard paths are part of the first draft, never an afterthought.</p></div>
-          <div class="principle" data-select><span class="mark shape-blob" style="background:var(--c-pink)" aria-hidden="true"></span><h3>Details are the design</h3><p>Empty states, error messages and tiny transitions are where trust gets built.</p></div>
+          <div class="principle" data-select><span class="mark shape-burst" style="--c: var(--c-lime);background:var(--c)" aria-hidden="true"></span><h3>Keep it simple</h3><p>If people have to stop and figure out how something works, it needs another pass.</p></div>
+          <div class="principle" data-select><span class="mark" style="background:var(--c-blue);border-radius:50%" aria-hidden="true"></span><h3>Design for everyone</h3><p>I check color contrast and keyboard use from the first draft.</p></div>
+          <div class="principle" data-select><span class="mark shape-blob" style="background:var(--c-pink)" aria-hidden="true"></span><h3>Small things matter</h3><p>Error messages, empty screens and loading states are part of the design too.</p></div>
         </div>
       </div>
 
@@ -749,14 +767,14 @@ footer .mono { font: 500 12px var(--f-mono); }
         <span class="deco shape-blob" style="width:150px;height:130px;right:26%;bottom:-50px;background:var(--c-lime)" aria-hidden="true"></span>
         <div class="label">Page / Playground</div>
         <h1 class="display" id="t-play" tabindex="-1">Playground</h1>
-        <p>Small interactions I like to tinker with. Go ahead and poke them.</p>
+        <p>A few small things I built for fun. Try them out.</p>
       </header>
 
       <div class="play-grid">
         <div class="tile" data-select>
           <div><div class="label">Toggle / Lights</div><h2>Lights switch</h2></div>
           <div class="stage"><button type="button" class="switch" id="lights" role="switch" aria-checked="false" aria-label="Dark mode" data-cursor="flip it"></button></div>
-          <p id="lightsText">A switch should feel like a switch. This one runs the whole site.</p>
+          <p id="lightsText">Switches the whole site to dark mode.</p>
         </div>
         <div class="tile" data-select>
           <div><div class="label">Button / Squish</div><h2>Squishy button</h2></div>
@@ -774,7 +792,7 @@ footer .mono { font: 500 12px var(--f-mono); }
               </div>
             </div>
           </div>
-          <p>Hand-picked palettes I'd actually use, shown as paint chips.</p>
+          <p>Some color palettes I like. Tap shuffle to see another one.</p>
         </div>
         <div class="tile" data-select>
           <div><div class="label">Tool / Contrast checker</div><h2>Contrast checker</h2></div>
@@ -804,7 +822,7 @@ footer .mono { font: 500 12px var(--f-mono); }
         <span class="deco" style="width:110px;height:110px;right:28%;bottom:-40px;border-radius:50%;background:var(--c-orange)" aria-hidden="true"></span>
         <div class="label">Page / About</div>
         <h1 class="display" id="t-about" tabindex="-1">Hi, I'm Minnie.</h1>
-        <p>Designer, sketcher, and lifelong noticer of small details.</p>
+        <p>I'm a UI/UX designer.</p>
       </header>
 
       <div class="about-grid">
@@ -820,8 +838,8 @@ footer .mono { font: 500 12px var(--f-mono); }
         <div>
           <div class="label" style="margin-bottom:14px">Text / About me</div>
           <div class="about-copy">
-            <p>I'm a UI/UX designer who cares about the small moments in an interface: the empty state, the error message, the button that just feels good to press.</p>
-            <p>I like to start with people and their problems, sketch until the idea is simple, and then make it beautiful. Good design should feel obvious once it exists.</p>
+            <p>I design apps and websites, and I focus on how they work and how they feel to use. I usually start with research and sketches before I open Figma.</p>
+            <p>I care a lot about accessibility, and I like working closely with the people who will actually use what I make.</p>
           </div>
           <h2 class="sr-only">Skills</h2>
           <ul class="skills">
@@ -835,9 +853,8 @@ footer .mono { font: 500 12px var(--f-mono); }
             <li style="--c: var(--c-lime)">Interaction design</li>
           </ul>
           <dl class="now">
-            <div><dt>Focus</dt><dd>Product &amp; interface design</dd></div>
-            <div><dt>Currently</dt><dd>Writing up my latest case studies</dd></div>
-            <div><dt>Loves</dt><dd>Micro-interactions, tidy type scales, a good sketchbook</dd></div>
+            <div><dt>Focus</dt><dd>UI and UX design</dd></div>
+            <div><dt>Currently</dt><dd>Putting together my case studies</dd></div>
           </dl>
         </div>
       </div>
@@ -854,8 +871,8 @@ footer .mono { font: 500 12px var(--f-mono); }
         <span class="deco shape-burst" style="width:340px;height:340px;right:-90px;top:-100px;background:var(--c-pink)" aria-hidden="true"></span>
         <span class="deco shape-flower" style="width:140px;height:140px;right:30%;bottom:-50px;--c:var(--c-yellow)" aria-hidden="true"></span>
         <div class="label">Page / Contact</div>
-        <h1 class="display" id="t-contact" tabindex="-1">Let's make<br>something <em>good.</em></h1>
-        <p>Open to full-time roles, freelance projects, and friendly design chats.</p>
+        <h1 class="display" id="t-contact" tabindex="-1">Let's <em>talk.</em></h1>
+        <p>I'm open to full-time roles and freelance projects.</p>
         <div class="contact-row">
           <div class="email">
             <code id="emailText">hello@minniemarinlopez.com</code>
@@ -871,9 +888,9 @@ footer .mono { font: 500 12px var(--f-mono); }
       </header>
 
       <div class="contact-cards">
-        <div class="principle" data-select><span class="mark shape-burst" style="background:var(--c-orange)" aria-hidden="true"></span><h3>Roles</h3><p>Product designer, UI/UX designer, or interaction designer on a team that ships.</p></div>
-        <div class="principle" data-select><span class="mark" style="background:var(--c-lime);border-radius:50%" aria-hidden="true"></span><h3>Freelance</h3><p>Websites, app redesigns, design systems and usability reviews.</p></div>
-        <div class="principle" data-select><span class="mark shape-blob" style="background:var(--c-pink)" aria-hidden="true"></span><h3>Just saying hi</h3><p>Students, fellow designers and curious people are always welcome.</p></div>
+        <div class="principle" data-select><span class="mark shape-burst" style="background:var(--c-orange)" aria-hidden="true"></span><h3>Jobs</h3><p>UI/UX, product or interaction design roles.</p></div>
+        <div class="principle" data-select><span class="mark" style="background:var(--c-lime);border-radius:50%" aria-hidden="true"></span><h3>Freelance</h3><p>Website and app design, redesigns and usability reviews.</p></div>
+        <div class="principle" data-select><span class="mark shape-blob" style="background:var(--c-pink)" aria-hidden="true"></span><h3>Anything else</h3><p>Questions, feedback, or just saying hi.</p></div>
       </div>
 
       <a class="next blue" href="#home" style="--c: var(--c-blue)" data-cursor="back home"><span><span class="mono">Back to start</span><strong>Home</strong></span><span class="arrow" aria-hidden="true">→</span></a>
@@ -884,7 +901,7 @@ footer .mono { font: 500 12px var(--f-mono); }
 <footer>
   <div class="wrap">
     <span>© 2026 Minnie Marin Lopez</span>
-    <span class="mono">tip: click anywhere on the background</span>
+    <span class="mono">Tip: click the background</span>
   </div>
 </footer>
 
@@ -907,6 +924,13 @@ footer .mono { font: 500 12px var(--f-mono); }
   };
   calmBtn.onclick = () => { calm = !calm; store.set('calm', calm ? '1' : '0'); applyCalm(); };
   applyCalm();
+
+  /* ---------- mobile menu ---------- */
+  const menuBtn = document.getElementById('menuBtn'), navRight = document.getElementById('navRight');
+  const setMenu = open => { navRight.classList.toggle('open', open); menuBtn.setAttribute('aria-expanded', open); menuBtn.textContent = open ? 'Close' : 'Menu'; };
+  menuBtn.onclick = () => setMenu(menuBtn.getAttribute('aria-expanded') !== 'true');
+  navRight.addEventListener('click', e => { if (e.target.closest('a')) setMenu(false); });
+  addEventListener('keydown', e => { if (e.key === 'Escape' && navRight.classList.contains('open')) { setMenu(false); menuBtn.focus(); } });
 
   /* ---------- pages (hash routing) ---------- */
   const pages = [...document.querySelectorAll('.page')];
@@ -1088,7 +1112,7 @@ footer .mono { font: 500 12px var(--f-mono); }
   const isDark = () => root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
   const syncLights = () => {
     lights.setAttribute('aria-checked', isDark());
-    lightsText.textContent = isDark() ? 'Lights off. Dark mode got the same care as light mode.' : 'A switch should feel like a switch. This one runs the whole site.';
+    lightsText.textContent = isDark() ? 'Dark mode is on. Tap again to switch back.' : 'Switches the whole site to dark mode.';
   };
   lights.onclick = () => { root.dataset.theme = isDark() ? 'light' : 'dark'; syncLights(); requestAnimationFrame(redraw); };
   syncLights();
