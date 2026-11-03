@@ -193,7 +193,7 @@ h2.display { font-size: clamp(34px, 5vw, 54px); }
 /* ---------- HOME hero ---------- */
 .hero-frame {
   position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: calc(var(--radius) * 1.75);
-  padding: clamp(24px, 5vw, 64px); margin-top: 10px; overflow: hidden;
+  padding: clamp(28px, 5vw, 72px); padding-block: clamp(28px, 4vw, 56px) clamp(32px, 5vw, 72px); margin-top: 10px; overflow: hidden;
 }
 .hero-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; position: relative; z-index: 4; }
 .status {
@@ -213,8 +213,9 @@ h2.display { font-size: clamp(34px, 5vw, 54px); }
 .toolbar button:focus-visible { outline-color: var(--select); outline-offset: 1px; }
 
 .name-block { position: relative; margin-top: clamp(52px, 7vw, 84px); width: fit-content; max-width: 100%; z-index: 2; }
-.hero-name { font-size: clamp(54px, 12.5vw, 172px); line-height: .9; letter-spacing: -.025em; }
+.hero-name { font-size: clamp(54px, 13vw, 196px); line-height: .9; letter-spacing: -.025em; }
 .hero-name .line { display: block; }
+.hero-name .word { display: inline-block; white-space: nowrap; }
 .hero-name .ch { display: inline-block; transition: transform .35s cubic-bezier(.3,1.8,.5,1), color .2s; }
 .hero-name .ch:hover { transform: translateY(-.08em) rotate(-5deg); }
 .hero-name .ch:nth-child(3n+1):hover { color: var(--pink); }
@@ -232,7 +233,7 @@ h2.display { font-size: clamp(34px, 5vw, 54px); }
 .selected-ring span:nth-child(3) { left: -5px; bottom: -5px; }
 .selected-ring span:nth-child(4) { right: -5px; bottom: -5px; }
 .selected-ring b { position: absolute; left: -1.5px; top: -26px; background: var(--select); color: var(--on-select); font: 500 11px/1 var(--f-mono); padding: 5px 7px; border-radius: 4px 4px 4px 0; }
-.hi-note { position: absolute; right: -6px; top: -60px; display: flex; align-items: flex-end; gap: 2px; font-size: 30px; transform: rotate(4deg); }
+.hi-note { position: absolute; left: clamp(190px, 24%, 300px); top: -62px; display: flex; align-items: flex-end; gap: 2px; font-size: 30px; transform: rotate(4deg); }
 .hi-note svg { width: 56px; height: 48px; margin-bottom: -26px; }
 
 .gap-measure { height: 40px; width: 1px; background: var(--pink); position: relative; margin-left: 6px; z-index: 2; }
@@ -262,12 +263,14 @@ h2.display { font-size: clamp(34px, 5vw, 54px); }
 .sticker:hover { filter: drop-shadow(0 8px 10px rgba(0,0,0,.18)); }
 .sticker.dragging { z-index: 5; filter: drop-shadow(0 14px 18px rgba(0,0,0,.25)); }
 .sticker > * { pointer-events: none; }
-.s-burst { width: 118px; height: 118px; background: var(--c-lime); right: 6%; top: 22%; font-size: 28px; }
+.s-burst { width: 124px; height: 124px; background: var(--c-lime); right: 5%; top: 21%; font-size: 28px; }
 .s-burst b { transform: rotate(-12deg); }
-.s-dot { width: 84px; height: 84px; border-radius: 50%; background: var(--c-orange); right: 22%; top: 48%; font-size: 24px; animation: bob 5s ease-in-out infinite; }
-.s-blob { width: 130px; height: 110px; background: var(--c-pink); right: 4%; bottom: 10%; }
-.s-flower { width: 92px; height: 92px; --c: var(--c-violet); right: 30%; top: 14%; }
-.drag-hint { position: absolute; right: 18px; top: 66px; font-size: 20px; z-index: 2; transform: rotate(-4deg); }
+.s-dot { width: 78px; height: 78px; border-radius: 50%; background: var(--c-orange); right: 33%; top: 33%; font-size: 24px; animation: bob 5s ease-in-out infinite; }
+.s-blob { width: 170px; height: 150px; background: var(--c-pink); left: -56px; bottom: -60px; }
+.s-flower { width: 96px; height: 96px; --c: var(--c-violet); right: 19%; top: 37%; }
+.tools-col { display: grid; justify-items: end; gap: 8px; }
+.drag-hint { font-size: 21px; transform: rotate(-3deg); }
+.wrap.wide { max-width: 1400px; }
 
 #doodle { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; touch-action: none; }
 .hero-frame.pen-on #doodle { pointer-events: auto; }
@@ -469,10 +472,9 @@ footer .mono { font: 500 12px var(--f-mono); }
   .play-grid { grid-template-columns: 1fr; }
   .about-grid { grid-template-columns: 1fr; }
   .portrait { max-width: 340px; }
-  .s-flower, .drag-hint { display: none; }
-  .s-burst { top: auto; bottom: 30%; right: 4%; width: 90px; height: 90px; font-size: 22px; }
-  .s-dot { top: 12%; right: 6%; width: 64px; height: 64px; font-size: 20px; }
-  .s-blob { width: 90px; height: 76px; bottom: 4%; }
+  .s-flower, .s-dot, .drag-hint { display: none; }
+  .s-burst { top: 22%; right: 5%; width: 88px; height: 88px; font-size: 21px; }
+  .s-blob { width: 120px; height: 100px; left: -50px; bottom: -50px; }
   .sticky { position: static; transform: rotate(-2deg); }
 }
 @media (max-width: 640px) {
@@ -483,11 +485,11 @@ footer .mono { font: 500 12px var(--f-mono); }
   .work-grid > article:nth-child(even) { margin-top: 0; }
   .flow { grid-template-columns: 1fr; }
   .step::after, .step::before { display: none; }
-  .hi-note { top: -50px; right: 0; font-size: 24px; }
+  .hi-note { top: -52px; left: auto; right: 0; font-size: 24px; }
   .brand-name { display: none; }
   .now div { grid-template-columns: 1fr; gap: 2px; }
   .toolbar button kbd { display: none; }
-  .s-burst, .s-blob { display: none; }
+  .s-burst { display: none; }
   .ratio { margin-left: 0; }
 }
 </style>
@@ -533,7 +535,7 @@ footer .mono { font: 500 12px var(--f-mono); }
 
   <!-- ===================== HOME ===================== -->
   <section class="page" data-page="home" data-color="--c-pink" aria-labelledby="t-home">
-    <div class="wrap">
+    <div class="wrap wide">
       <div>
         <div class="label">Home / Desktop — 1440 × auto</div>
         <div class="hero-frame" id="heroFrame">
@@ -544,19 +546,21 @@ footer .mono { font: 500 12px var(--f-mono); }
           <div class="sticker s-flower shape-flower" aria-hidden="true" data-cursor="drag me"></div>
           <div class="sticker s-dot" aria-hidden="true" data-cursor="drag me"><b>hi!</b></div>
           <div class="sticker s-blob shape-blob" aria-hidden="true" data-cursor="drag me"></div>
-          <span class="drag-hint hand" aria-hidden="true">these are draggable →</span>
 
           <div class="hero-top">
             <span class="status"><i aria-hidden="true"></i>Open to UI/UX opportunities</span>
+            <div class="tools-col">
             <div class="toolbar" role="toolbar" aria-label="Doodle tools">
               <button type="button" id="toolMove" aria-pressed="true" data-cursor="move tool">Move <kbd>V</kbd></button>
               <button type="button" id="toolPen" aria-pressed="false" data-cursor="grab the pen">Pen <kbd>P</kbd></button>
               <button type="button" id="toolClear" data-cursor="wipe it">Clear</button>
             </div>
+            <span class="drag-hint hand" aria-hidden="true">the stickers are draggable</span>
+            </div>
           </div>
 
           <div class="name-block">
-            <div class="selected-ring" aria-hidden="true"><span></span><span></span><span></span><span></span><b>Text — Display / 172</b></div>
+            <div class="selected-ring" aria-hidden="true"><span></span><span></span><span></span><span></span><b>Text — Display / 196</b></div>
             <div class="hi-note hand" aria-hidden="true">
               hi, that's me
               <svg viewBox="0 0 56 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6c18-2 34 6 40 32"/><path d="M36 32l8 8 5-11"/></svg>
@@ -931,7 +935,8 @@ footer .mono { font: 500 12px var(--f-mono); }
   /* split hero name into letters for hover wiggle */
   document.querySelectorAll('[data-split]').forEach(el => {
     el.setAttribute('aria-hidden', 'true');
-    el.innerHTML = [...el.textContent].map(c => c === ' ' ? ' ' : `<span class="ch">${c}</span>`).join('');
+    el.innerHTML = el.textContent.trim().split(/\s+/)
+      .map(w => `<span class="word">${[...w].map(c => `<span class="ch">${c}</span>`).join('')}</span>`).join(' ');
   });
 
   /* selection size badges */
