@@ -371,9 +371,30 @@ h2.display { font-size: clamp(34px, 5vw, 54px); }
 .squish:hover { border-radius: 55% 45% 40% 60% / 40% 58% 42% 60%; }
 .squish:active { transform: scale(.86, .78); transition-duration: .08s; }
 .count { font-family: var(--f-mono); font-size: 13px; color: var(--muted); text-align: center; min-height: 1.6em; }
-.palette { display: flex; width: 100%; height: 140px; border-radius: 12px; overflow: hidden; border: 2px solid var(--fixed-ink); padding: 0; }
-.palette span { flex: 1; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 10px; font: 500 11px/1 var(--f-mono); transition: flex .3s, background .5s; }
-.palette:hover span:hover { flex: 1.8; }
+.palette-wrap { display: grid; gap: 14px; width: 100%; }
+.palette { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.chip-card {
+  background: var(--surface); border: 1.5px solid var(--fixed-ink); border-radius: 10px; padding: 5px 5px 0; display: grid;
+  box-shadow: 3px 3px 0 var(--fixed-ink); transition: transform .35s cubic-bezier(.3,1.8,.5,1);
+}
+:root[data-theme="dark"] .chip-card { box-shadow: 3px 3px 0 #000; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .chip-card { box-shadow: 3px 3px 0 #000; } }
+.chip-card:nth-child(odd) { transform: rotate(-2deg); }
+.chip-card:nth-child(even) { transform: rotate(2deg) translateY(4px); }
+.chip-card:hover { transform: translateY(-6px) rotate(0); }
+.chip-card i { display: block; aspect-ratio: 3 / 4; border-radius: 6px; transition: background .4s; }
+.chip-card span { font: 500 10.5px/1 var(--f-mono); color: var(--ink); text-align: center; padding: 8px 0; letter-spacing: .02em; }
+.palette-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.palette-name { font-family: var(--f-hand); font-weight: 700; font-size: 26px; color: var(--pink); line-height: 1; }
+.shuffle-btn {
+  font: 700 14px/1 var(--f-body); color: var(--fixed-ink); background: var(--c-yellow); border: 2px solid var(--fixed-ink);
+  border-radius: 999px; padding: 11px 16px; min-height: 44px; display: inline-flex; gap: 8px; align-items: center;
+  transition: transform .2s, box-shadow .2s;
+}
+.shuffle-btn:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--fixed-ink); }
+.shuffle-btn b { display: inline-block; transition: transform .5s cubic-bezier(.3,1.6,.5,1); }
+.shuffle-btn:hover b { transform: rotate(180deg); }
+@media (max-width: 420px) { .chip-card span { font-size: 9px; } .palette { gap: 6px; } }
 .checker { display: grid; gap: 14px; width: 100%; }
 .checker .preview { border-radius: 12px; padding: 18px; border: 1px solid var(--line); transition: background .2s, color .2s; }
 .checker .preview strong { font-family: var(--f-display); font-weight: 400; font-size: 28px; display: block; line-height: 1.1; }
@@ -750,8 +771,16 @@ footer .mono { font: 500 12px var(--f-mono); }
         </div>
         <div class="tile" data-select>
           <div><div class="label">Generator / Palette</div><h2>Palette shuffle</h2></div>
-          <div class="stage"><button type="button" class="palette" id="palette" aria-label="Shuffle palette" data-cursor="shuffle"></button></div>
-          <p>Click for a fresh five-color palette. Each label picks the more readable of black or white.</p>
+          <div class="stage">
+            <div class="palette-wrap">
+              <ul class="palette" id="palette" aria-label="Current palette"></ul>
+              <div class="palette-bar">
+                <span class="palette-name" id="paletteName" aria-live="polite"></span>
+                <button type="button" class="shuffle-btn" id="shuffleBtn" data-cursor="shuffle"><b aria-hidden="true">↻</b>Shuffle palette</button>
+              </div>
+            </div>
+          </div>
+          <p>Hand-picked palettes I'd actually use, shown as paint chips.</p>
         </div>
         <div class="tile" data-select>
           <div><div class="label">Tool / Contrast checker</div><h2>Contrast checker</h2></div>
@@ -1104,24 +1133,30 @@ footer .mono { font: 500 12px var(--f-mono); }
     squishCount.textContent = `${presses} press${presses === 1 ? '' : 'es'}${quips[presses] ? ' · ' + quips[presses] : ''}`;
   };
 
-  const palette = document.getElementById('palette');
-  const hsl2hex = (h, s, l) => {
-    s /= 100; l /= 100;
-    const f = n => { const k = (n + h / 30) % 12, a = s * Math.min(l, 1 - l); return Math.round(255 * (l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)))).toString(16).padStart(2, '0'); };
-    return `#${f(0)}${f(8)}${f(4)}`.toUpperCase();
-  };
+  const palette = document.getElementById('palette'), paletteName = document.getElementById('paletteName');
+  const palettes = [
+    ['Sorbet', ['#FF6FAE', '#FF8A3D', '#FFE38A', '#C8F169', '#9B7BFF']],
+    ['Tide pool', ['#0B3954', '#087E8B', '#BFD7EA', '#FF5A5F', '#FFF1D0']],
+    ['Studio', ['#17171F', '#3A55E8', '#E9ECF5', '#FFD23F', '#EE4266']],
+    ['Matcha latte', ['#2D4739', '#6B8F71', '#C9D6B8', '#F4EBD9', '#D98E73']],
+    ['Night market', ['#1B1B3A', '#693668', '#E84855', '#F9A03F', '#FCEFB4']],
+    ['Riso print', ['#0078BF', '#FF48B0', '#FFE800', '#00A95C', '#F2F0E9']],
+    ['Plum jam', ['#3C1642', '#7A3B69', '#C17C9E', '#F2C6DE', '#FAF3F0']],
+    ['Citrus', ['#FF7B00', '#FFB703', '#FFE66D', '#8AC926', '#1E3D2F']],
+    ['Blueprint', ['#0D1B2A', '#1B4B8A', '#4F8FD9', '#A9D2FF', '#F1F7FF']],
+    ['Terrazzo', ['#E07A5F', '#3D405B', '#81B29A', '#F2CC8F', '#F4F1DE']],
+    ['Bubblegum', ['#FF99C8', '#FCF6BD', '#D0F4DE', '#A9DEF9', '#E4C1F9']],
+    ['Desert', ['#7F5539', '#B08968', '#DDB892', '#EDE0D4', '#6B9080']],
+  ];
+  let palI = Math.floor(Math.random() * palettes.length);
   const shuffle = () => {
-    const base = Math.random() * 360, mode = Math.floor(Math.random() * 3);
-    const hues = mode === 0 ? [0, 25, 50, 180, 205] : mode === 1 ? [0, 30, 150, 180, 330] : [0, 120, 240, 60, 300];
-    const ls = [22, 45, 62, 78, 92];
-    palette.innerHTML = hues.map((o, i) => {
-      const hex = hsl2hex((base + o) % 360, 55 + Math.random() * 30, ls[i]);
-      const txt = ratio(hex, '#17171F') >= ratio(hex, '#FFFFFF') ? '#17171F' : '#FFFFFF';
-      return `<span style="background:${hex};color:${txt}">${hex}</span>`;
-    }).join('');
-    palette.setAttribute('aria-label', 'Shuffle palette. Current colors: ' + [...palette.children].map(s => s.textContent).join(', '));
+    let n; do { n = Math.floor(Math.random() * palettes.length); } while (n === palI);
+    palI = n;
+    const [name, cols] = palettes[palI];
+    paletteName.textContent = name;
+    palette.innerHTML = cols.map(h => `<li class="chip-card"><i style="background:${h}"></i><span>${h}</span></li>`).join('');
   };
-  palette.onclick = shuffle; shuffle();
+  document.getElementById('shuffleBtn').onclick = shuffle; shuffle();
 
   const cFg = document.getElementById('cFg'), cBg = document.getElementById('cBg');
   const cPreview = document.getElementById('cPreview'), cRatio = document.getElementById('cRatio'), cResults = document.getElementById('cResults');
