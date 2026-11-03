@@ -1,0 +1,1144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Minnie Marin Lopez</title>
+<meta name="description" content="Minnie Marin Lopez — UI/UX designer.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Figtree:wght@400;500;600;700&family=Gloock&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a design-tool canvas. Every nav item is its own page with its own color,
+   a big colored header band, and stickers you can drag. Selection boxes, a multiplayer
+   "minnie" cursor and a doodle pen carry the UI/UX theme. All text pairs pass WCAG AA. */
+:root {
+  /* theme neutrals + text-safe accents */
+  --bg: #EEF0F4;
+  --surface: #FFFFFF;
+  --ink: #17171F;
+  --muted: #555867;          /* 6.1:1 on --bg */
+  --line: #D3D6E0;
+  --dot: #C3C7D4;
+  --select: #3A55E8;         /* 5.6:1 with white */
+  --on-select: #FFFFFF;
+  --pink: #C2185B;           /* 5.1:1 on --bg, 5.9:1 on white */
+  --on-pink: #FFFFFF;
+
+  /* page colors: always paired with --fixed-ink (or white on blue), same in both themes */
+  --fixed-ink: #17171F;
+  --c-blue: #2F45D8;         /* white text 7.1:1 */
+  --c-orange: #FF8A3D;       /* ink text 7.6:1 */
+  --c-pink: #FF6FAE;         /* ink text 6.9:1 */
+  --c-lime: #C8F169;         /* ink text 14:1 */
+  --c-violet: #9B7BFF;       /* ink text 5.7:1 */
+  --c-yellow: #FFE38A;       /* ink text 15:1 */
+
+  --f-display: "Gloock", "Iowan Old Style", "Times New Roman", serif;
+  --f-body: "Figtree", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --f-hand: "Caveat", "Bradley Hand", "Comic Sans MS", cursive;
+
+  --page: var(--c-blue);
+  --page-ink: var(--fixed-ink);
+  --wrap: 1180px;
+  --radius: 16px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101117; --surface: #1A1B24; --ink: #EDEEF3; --muted: #A3A6B6; --line: #2E3040; --dot: #2B2D3A;
+    --select: #8A9EFF; --on-select: #0D0F1C; --pink: #FF8CC0; --on-pink: #17171F;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101117; --surface: #1A1B24; --ink: #EDEEF3; --muted: #A3A6B6; --line: #2E3040; --dot: #2B2D3A;
+  --select: #8A9EFF; --on-select: #0D0F1C; --pink: #FF8CC0; --on-pink: #17171F;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  background-color: var(--bg);
+  background-image: radial-gradient(var(--dot) 1px, transparent 1.3px);
+  background-size: 22px 22px;
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  transition: background-color .4s, color .4s;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 10; background: var(--bg);
+}
+a { color: inherit; }
+::selection { background: var(--select); color: var(--on-select); }
+:focus-visible { outline: 3px solid var(--select); outline-offset: 3px; border-radius: 6px; }
+.band :focus-visible, .tile-link:focus-visible, .next:focus-visible { outline-color: var(--fixed-ink); }
+
+.wrap {
+  max-width: var(--wrap); margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.skip {
+  position: absolute; left: 16px; top: -60px; z-index: 200; background: var(--ink); color: var(--bg);
+  padding: 10px 16px; border-radius: 10px; font-weight: 600; text-decoration: none;
+}
+.skip:focus { top: calc(10px + env(safe-area-inset-top, 0px)); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- type helpers ---------- */
+.label {
+  font-family: var(--f-mono); font-size: 12px; color: var(--muted);
+  display: flex; align-items: center; gap: 8px; letter-spacing: .02em;
+}
+.label::before { content: ""; width: 9px; height: 9px; border: 1.5px solid currentColor; border-radius: 2px; flex: none; }
+.hand { font-family: var(--f-hand); color: var(--pink); font-weight: 700; line-height: 1.05; }
+.display { font-family: var(--f-display); font-weight: 400; letter-spacing: -.015em; line-height: .95; margin: 0; text-wrap: balance; }
+h2.display { font-size: clamp(34px, 5vw, 54px); }
+
+/* ---------- nav ---------- */
+.nav {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  background: color-mix(in oklab, var(--bg) 86%, transparent);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+.nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 10px 16px; padding-block: 12px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; border-radius: 12px; }
+.brand-mark {
+  width: 38px; height: 38px; border-radius: 50% 50% 50% 8px; background: var(--page); color: var(--page-ink);
+  display: grid; place-items: center; font-family: var(--f-display); font-size: 16px;
+  transition: border-radius .4s, transform .4s, background .4s, color .4s;
+}
+.brand:hover .brand-mark { border-radius: 8px 50% 50% 50%; transform: rotate(-8deg); }
+.brand-name { font-family: var(--f-display); font-size: 19px; }
+.nav-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 2px; flex-wrap: wrap; }
+.nav ul a {
+  text-decoration: none; font-size: 15px; font-weight: 600; padding: 8px 12px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 7px; min-height: 36px;
+  transition: background .2s, color .2s;
+}
+.nav ul a i { width: 9px; height: 9px; border-radius: 50%; background: var(--dotc); outline: 1.5px solid var(--fixed-ink); outline-offset: -1.5px; }
+.nav ul a:hover { background: var(--surface); }
+.nav ul a[aria-current="page"] { background: var(--dotc); color: var(--dotink, var(--fixed-ink)); }
+.nav ul a[aria-current="page"] i { background: currentColor; outline: 0; }
+.calm-btn {
+  font: 500 12px/1 var(--f-mono); color: var(--ink); background: var(--surface); border: 1px solid var(--line);
+  padding: 9px 12px; border-radius: 999px; display: inline-flex; gap: 8px; align-items: center; min-height: 36px;
+}
+.calm-btn span { width: 26px; height: 14px; border-radius: 999px; background: var(--line); position: relative; transition: background .2s; }
+.calm-btn span::after { content: ""; position: absolute; left: 2px; top: 2px; width: 10px; height: 10px; border-radius: 50%; background: var(--ink); transition: transform .2s; }
+.calm-btn[aria-pressed="true"] span { background: var(--select); }
+.calm-btn[aria-pressed="true"] span::after { transform: translateX(12px); background: var(--on-select); }
+
+/* ---------- selectable frames (hover = selection box + size) ---------- */
+[data-select] { position: relative; }
+@media (hover: hover) {
+  [data-select]::after {
+    content: ""; position: absolute; inset: -7px; pointer-events: none; opacity: 0;
+    border: 1.5px solid var(--select); border-radius: 3px;
+    background:
+      linear-gradient(var(--select), var(--select)) left top / 8px 8px no-repeat border-box,
+      linear-gradient(var(--select), var(--select)) right top / 8px 8px no-repeat border-box,
+      linear-gradient(var(--select), var(--select)) left bottom / 8px 8px no-repeat border-box,
+      linear-gradient(var(--select), var(--select)) right bottom / 8px 8px no-repeat border-box;
+    background-origin: border-box; transition: opacity .15s; z-index: 2;
+  }
+  [data-select]::before {
+    content: attr(data-size); position: absolute; left: 50%; bottom: -34px; transform: translateX(-50%);
+    background: var(--select); color: var(--on-select); font: 500 11px/1 var(--f-mono);
+    padding: 5px 7px; border-radius: 4px; white-space: nowrap; pointer-events: none; opacity: 0;
+    transition: opacity .15s; z-index: 3;
+  }
+  [data-select]:hover::after, [data-select]:hover::before { opacity: 1; }
+}
+
+/* ---------- page shell ---------- */
+.page { padding-block: 40px 0; }
+.page > .wrap > * + * { margin-top: clamp(48px, 7vw, 88px); }
+
+/* colored header band, one per page */
+.band {
+  background: var(--page); color: var(--page-ink); border-radius: calc(var(--radius) * 1.75);
+  padding: clamp(28px, 5vw, 64px); position: relative; overflow: hidden; isolation: isolate;
+  display: grid; gap: 18px;
+}
+.band .label { color: inherit; }
+.band h1 { font-size: clamp(56px, 11vw, 150px); }
+.band p { margin: 0; font-size: clamp(18px, 2vw, 22px); max-width: 38ch; font-weight: 500; text-wrap: pretty; }
+.band .deco { position: absolute; z-index: -1; pointer-events: none; }
+
+/* ---------- shapes (decorative, also used as draggable stickers) ---------- */
+.shape-burst { clip-path: polygon(50% 0, 61% 22%, 85% 15%, 78% 39%, 100% 50%, 78% 61%, 85% 85%, 61% 78%, 50% 100%, 39% 78%, 15% 85%, 22% 61%, 0 50%, 22% 39%, 15% 15%, 39% 22%); }
+.shape-flower { border-radius: 50%; background:
+  radial-gradient(circle at 50% 50%, var(--fixed-ink) 0 14%, transparent 15%),
+  radial-gradient(circle at 50% 18%, var(--c) 0 22%, transparent 23%),
+  radial-gradient(circle at 82% 50%, var(--c) 0 22%, transparent 23%),
+  radial-gradient(circle at 50% 82%, var(--c) 0 22%, transparent 23%),
+  radial-gradient(circle at 18% 50%, var(--c) 0 22%, transparent 23%),
+  radial-gradient(circle at 50% 50%, var(--c) 0 36%, transparent 37%); }
+.shape-blob { border-radius: 42% 58% 63% 37% / 45% 38% 62% 55%; animation: morph 9s ease-in-out infinite; }
+@keyframes morph { 50% { border-radius: 63% 37% 41% 59% / 58% 61% 39% 42%; transform: rotate(30deg) scale(1.06); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes bob { 50% { transform: translateY(-10px) rotate(6deg); } }
+
+/* ---------- HOME hero ---------- */
+.hero-frame {
+  position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: calc(var(--radius) * 1.75);
+  padding: clamp(24px, 5vw, 64px); margin-top: 10px; overflow: hidden;
+}
+.hero-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; position: relative; z-index: 4; }
+.status {
+  display: inline-flex; align-items: center; gap: 8px; font-family: var(--f-mono); font-size: 12px;
+  padding: 7px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg);
+}
+.status i { width: 8px; height: 8px; border-radius: 50%; background: #1E9E5F; box-shadow: 0 0 0 4px color-mix(in oklab, #1E9E5F 25%, transparent); animation: pulse 2s infinite; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 7px color-mix(in oklab, #1E9E5F 0%, transparent); } }
+.toolbar { display: flex; gap: 4px; padding: 4px; background: var(--ink); border-radius: 12px; }
+.toolbar button {
+  font: 500 12px/1 var(--f-mono); color: var(--bg); background: transparent; border: 0;
+  padding: 9px 11px; border-radius: 8px; display: flex; gap: 6px; align-items: center; min-height: 32px;
+}
+.toolbar button kbd { font: inherit; opacity: .8; }
+.toolbar button[aria-pressed="true"] { background: var(--select); color: var(--on-select); }
+.toolbar button:hover:not([aria-pressed="true"]) { background: color-mix(in oklab, var(--bg) 20%, transparent); }
+.toolbar button:focus-visible { outline-color: var(--select); outline-offset: 1px; }
+
+.name-block { position: relative; margin-top: clamp(52px, 7vw, 84px); width: fit-content; max-width: 100%; z-index: 2; }
+.hero-name { font-size: clamp(54px, 12.5vw, 172px); line-height: .9; letter-spacing: -.025em; }
+.hero-name .line { display: block; }
+.hero-name .ch { display: inline-block; transition: transform .35s cubic-bezier(.3,1.8,.5,1), color .2s; }
+.hero-name .ch:hover { transform: translateY(-.08em) rotate(-5deg); }
+.hero-name .ch:nth-child(3n+1):hover { color: var(--pink); }
+.hero-name .ch:nth-child(3n+2):hover { color: var(--select); }
+.hero-name .ch:nth-child(3n):hover { color: #1E8F57; }
+:root[data-theme="dark"] .hero-name .ch:nth-child(3n):hover { color: var(--c-lime); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .hero-name .ch:nth-child(3n):hover { color: var(--c-lime); } }
+.hl { background: linear-gradient(transparent 58%, var(--c-lime) 58% 92%, transparent 92%); padding-inline: .04em; color: var(--ink); }
+:root[data-theme="dark"] .hl { color: var(--fixed-ink); background: var(--c-lime); border-radius: .1em; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .hl { color: var(--fixed-ink); background: var(--c-lime); border-radius: .1em; } }
+.selected-ring { position: absolute; inset: -10px -14px; border: 1.5px solid var(--select); pointer-events: none; }
+.selected-ring span { position: absolute; width: 9px; height: 9px; background: var(--surface); border: 1.5px solid var(--select); }
+.selected-ring span:nth-child(1) { left: -5px; top: -5px; }
+.selected-ring span:nth-child(2) { right: -5px; top: -5px; }
+.selected-ring span:nth-child(3) { left: -5px; bottom: -5px; }
+.selected-ring span:nth-child(4) { right: -5px; bottom: -5px; }
+.selected-ring b { position: absolute; left: -1.5px; top: -26px; background: var(--select); color: var(--on-select); font: 500 11px/1 var(--f-mono); padding: 5px 7px; border-radius: 4px 4px 4px 0; }
+.hi-note { position: absolute; right: -6px; top: -60px; display: flex; align-items: flex-end; gap: 2px; font-size: 30px; transform: rotate(4deg); }
+.hi-note svg { width: 56px; height: 48px; margin-bottom: -26px; }
+
+.gap-measure { height: 40px; width: 1px; background: var(--pink); position: relative; margin-left: 6px; z-index: 2; }
+.gap-measure::before, .gap-measure::after { content: ""; position: absolute; left: -5px; width: 11px; height: 1px; background: var(--pink); }
+.gap-measure::before { top: 0; } .gap-measure::after { bottom: 0; }
+.gap-measure span { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font: 500 11px/1 var(--f-mono); color: var(--pink); }
+
+.hero-sub { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 28px; align-items: end; position: relative; z-index: 2; }
+.role { font-family: var(--f-mono); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+.intro { font-size: clamp(19px, 2.1vw, 24px); line-height: 1.45; margin: 0; max-width: 34ch; text-wrap: pretty; }
+.hero-aside { justify-self: end; text-align: right; display: grid; gap: 14px; }
+.hero-aside .hand { font-size: 26px; transform: rotate(-3deg); }
+.cta-row { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+.btn {
+  font: 700 15px/1 var(--f-body); text-decoration: none; padding: 14px 20px; border-radius: 999px; min-height: 44px;
+  border: 2px solid var(--ink); transition: transform .2s, background .2s, color .2s, box-shadow .2s;
+  display: inline-flex; gap: 8px; align-items: center;
+}
+.btn-solid { background: var(--ink); color: var(--bg); }
+.btn:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--c-pink); }
+.btn-ghost:hover { background: var(--c-lime); color: var(--fixed-ink); border-color: var(--fixed-ink); }
+
+.sticker {
+  position: absolute; z-index: 1; display: grid; place-items: center; touch-action: none; user-select: none;
+  font-family: var(--f-hand); font-weight: 700; color: var(--fixed-ink); transition: filter .2s;
+}
+.sticker:hover { filter: drop-shadow(0 8px 10px rgba(0,0,0,.18)); }
+.sticker.dragging { z-index: 5; filter: drop-shadow(0 14px 18px rgba(0,0,0,.25)); }
+.sticker > * { pointer-events: none; }
+.s-burst { width: 118px; height: 118px; background: var(--c-lime); right: 6%; top: 22%; font-size: 28px; }
+.s-burst b { transform: rotate(-12deg); }
+.s-dot { width: 84px; height: 84px; border-radius: 50%; background: var(--c-orange); right: 22%; top: 48%; font-size: 24px; animation: bob 5s ease-in-out infinite; }
+.s-blob { width: 130px; height: 110px; background: var(--c-pink); right: 4%; bottom: 10%; }
+.s-flower { width: 92px; height: 92px; --c: var(--c-violet); right: 30%; top: 14%; }
+.drag-hint { position: absolute; right: 18px; top: 66px; font-size: 20px; z-index: 2; transform: rotate(-4deg); }
+
+#doodle { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; touch-action: none; }
+.hero-frame.pen-on #doodle { pointer-events: auto; }
+.doodle-hint { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); font-size: 22px; opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 4; white-space: nowrap; }
+.hero-frame.pen-on .doodle-hint { opacity: 1; }
+
+/* home: page tiles */
+.explore-head { display: flex; justify-content: space-between; align-items: end; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
+.tiles { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; }
+.tile-link {
+  grid-column: span 2; min-height: 230px; border-radius: calc(var(--radius) * 1.4); padding: 24px; text-decoration: none;
+  background: var(--c); color: var(--fixed-ink); position: relative; overflow: hidden; isolation: isolate;
+  display: flex; flex-direction: column; justify-content: space-between; gap: 18px;
+  transition: transform .35s cubic-bezier(.3,1.6,.5,1), box-shadow .3s; border: 2px solid var(--fixed-ink);
+}
+.tile-link.wide { grid-column: span 4; }
+.tile-link:hover { transform: translate(-4px, -4px) rotate(-.6deg); box-shadow: 8px 8px 0 var(--ink); }
+.tile-link .mono { font: 500 12px/1 var(--f-mono); letter-spacing: .04em; }
+.tile-link strong { font-family: var(--f-display); font-weight: 400; font-size: clamp(36px, 4.4vw, 56px); line-height: .95; display: block; }
+.tile-link .row { display: flex; justify-content: space-between; align-items: end; gap: 12px; }
+.tile-link .row span:first-child { font-weight: 600; max-width: 26ch; line-height: 1.35; }
+.tile-link .arrow { width: 48px; height: 48px; border-radius: 50%; background: var(--fixed-ink); color: var(--c); display: grid; place-items: center; font-size: 22px; flex: none; transition: transform .3s; }
+.tile-link:hover .arrow { transform: rotate(-45deg); }
+.tile-link .deco { position: absolute; z-index: -1; pointer-events: none; transition: transform .6s cubic-bezier(.3,1.4,.5,1); }
+.tile-link:hover .deco { transform: rotate(25deg) scale(1.1); }
+.tile-link.blue { color: #FFFFFF; }
+.tile-link.blue .arrow { background: #FFFFFF; }
+.tile-link.blue:focus-visible { outline-color: var(--select); }
+
+/* ---------- WORK ---------- */
+.work-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 44px 28px; }
+.work-grid > article:nth-child(even) { margin-top: 64px; }
+.card { display: grid; gap: 10px; }
+.card .label { font-size: 11px; }
+.cover {
+  aspect-ratio: 4 / 3; max-width: 100%; border-radius: var(--radius); border: 2px solid var(--fixed-ink);
+  background: var(--c); display: grid; place-items: center; overflow: hidden; position: relative; isolation: isolate;
+  transition: transform .45s cubic-bezier(.2,.8,.2,1), box-shadow .3s;
+}
+.card:hover .cover { transform: translate(-4px, -4px) rotate(-1deg); box-shadow: 8px 8px 0 var(--ink); }
+.cover .ph { font-family: var(--f-mono); font-size: 12px; color: var(--fixed-ink); background: #FFFFFF; padding: 7px 11px; border-radius: 6px; border: 1.5px dashed var(--fixed-ink); }
+.cover .deco { position: absolute; z-index: -1; }
+.cover .grid-lines { position: absolute; inset: 0; z-index: -1; background-image: linear-gradient(rgba(23,23,31,.12) 1px, transparent 1px), linear-gradient(90deg, rgba(23,23,31,.12) 1px, transparent 1px); background-size: 32px 32px; }
+.card h2 { font-family: var(--f-display); font-weight: 400; font-size: 30px; line-height: 1.1; margin: 6px 0 0; }
+.meta { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; color: var(--muted); font-size: 15px; }
+.chip { font: 500 11px/1 var(--f-mono); padding: 6px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); letter-spacing: .04em; }
+.sticky {
+  background: var(--c-yellow); color: var(--fixed-ink); padding: 18px 20px 22px; width: 230px; max-width: 100%;
+  transform: rotate(-3deg); box-shadow: 0 12px 24px -14px rgba(0,0,0,.4); font-family: var(--f-hand); font-size: 25px; line-height: 1.1;
+  position: absolute; right: clamp(20px, 5vw, 64px); bottom: clamp(20px, 4vw, 48px);
+}
+
+/* ---------- PROCESS ---------- */
+.flow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.step { position: relative; padding-right: 28px; }
+.step .node {
+  width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--fixed-ink); background: var(--c); color: var(--fixed-ink);
+  display: grid; place-items: center; font: 500 14px var(--f-mono); position: relative; z-index: 1;
+  transition: transform .3s cubic-bezier(.3,1.8,.5,1);
+}
+.step:hover .node { transform: scale(1.12) rotate(-8deg); }
+.step:not(:last-child)::after { content: ""; position: absolute; left: 68px; right: 10px; top: 30px; border-top: 2px dashed var(--muted); }
+.step:not(:last-child)::before { content: ""; position: absolute; right: 6px; top: 25px; border: 6px solid transparent; border-left: 9px solid var(--muted); }
+.step h2 { font-family: var(--f-display); font-weight: 400; font-size: 30px; margin: 18px 0 6px; }
+.step p { margin: 0; color: var(--muted); font-size: 16px; max-width: 26ch; }
+.principles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.principle { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; display: grid; gap: 10px; align-content: start; }
+.principle .mark { width: 44px; height: 44px; background: var(--c); }
+.principle h3 { font-family: var(--f-display); font-weight: 400; font-size: 26px; line-height: 1.1; margin: 4px 0 0; }
+.principle p { margin: 0; color: var(--muted); font-size: 16px; }
+
+/* ---------- PLAYGROUND ---------- */
+.play-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.tile {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px;
+  display: grid; grid-template-rows: auto 1fr auto; gap: 18px; min-height: 300px;
+}
+.tile h2 { font-family: var(--f-display); font-weight: 400; font-size: 26px; margin: 0; line-height: 1.1; }
+.tile .stage { display: grid; place-items: center; }
+.tile p { margin: 0; font-size: 15px; color: var(--muted); }
+.switch {
+  width: 132px; height: 68px; border-radius: 999px; border: 2px solid var(--fixed-ink); background: var(--c-orange); position: relative; padding: 0;
+  transition: background .35s;
+}
+.switch::after {
+  content: ""; position: absolute; left: 4px; top: 4px; width: 56px; height: 56px; border-radius: 50%; background: #FFFFFF; border: 2px solid var(--fixed-ink);
+  transition: transform .45s cubic-bezier(.3,1.5,.5,1), width .2s;
+}
+.switch:active::after { width: 68px; }
+.switch[aria-checked="true"] { background: var(--c-blue); }
+.switch[aria-checked="true"]::after { transform: translateX(64px); }
+.switch[aria-checked="true"]:active::after { transform: translateX(52px); }
+.squish {
+  width: 140px; height: 140px; border-radius: 38% 62% 55% 45% / 48% 42% 58% 52%; border: 2px solid var(--fixed-ink);
+  background: var(--c-pink); color: var(--fixed-ink); font: 700 17px/1.1 var(--f-body);
+  box-shadow: inset 0 -10px 0 rgba(0,0,0,.12); transition: transform .5s cubic-bezier(.3,2,.5,1), border-radius .5s;
+}
+.squish:hover { border-radius: 55% 45% 40% 60% / 40% 58% 42% 60%; }
+.squish:active { transform: scale(.86, .78); transition-duration: .08s; }
+.count { font-family: var(--f-mono); font-size: 13px; color: var(--muted); text-align: center; min-height: 1.6em; }
+.palette { display: flex; width: 100%; height: 140px; border-radius: 12px; overflow: hidden; border: 2px solid var(--fixed-ink); padding: 0; }
+.palette span { flex: 1; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 10px; font: 500 11px/1 var(--f-mono); transition: flex .3s, background .5s; }
+.palette:hover span:hover { flex: 1.8; }
+.checker { display: grid; gap: 14px; width: 100%; }
+.checker .preview { border-radius: 12px; padding: 18px; border: 1px solid var(--line); transition: background .2s, color .2s; }
+.checker .preview strong { font-family: var(--f-display); font-weight: 400; font-size: 28px; display: block; line-height: 1.1; }
+.checker .inputs { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+.checker label { display: inline-flex; align-items: center; gap: 8px; font: 500 13px var(--f-mono); }
+.checker input[type="color"] { width: 44px; height: 44px; border: 1px solid var(--line); border-radius: 10px; padding: 3px; background: var(--surface); }
+.ratio { font: 500 24px/1 var(--f-mono); margin-left: auto; }
+.results { display: flex; gap: 8px; flex-wrap: wrap; }
+.res { font: 500 12px/1 var(--f-mono); padding: 7px 10px; border-radius: 999px; border: 1.5px solid currentColor; }
+.res.pass { color: #1E7A4C; } .res.fail { color: var(--pink); }
+:root[data-theme="dark"] .res.pass { color: #6FE0A6; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .res.pass { color: #6FE0A6; } }
+
+/* ---------- ABOUT ---------- */
+.about-grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(28px, 6vw, 80px); align-items: start; }
+.portrait {
+  aspect-ratio: 4 / 5; max-width: 100%; border-radius: var(--radius); border: 2px dashed var(--muted);
+  background: var(--surface); display: grid; place-items: center; position: relative; overflow: hidden; isolation: isolate;
+}
+.portrait .face {
+  width: 58%; aspect-ratio: 1; border-radius: 50%; background: var(--c-yellow); border: 2px solid var(--fixed-ink); display: grid; place-items: center;
+  font-family: var(--f-display); font-size: clamp(40px, 6vw, 64px); color: var(--fixed-ink);
+}
+.portrait .deco { position: absolute; z-index: -1; }
+.portrait .hand { position: absolute; left: 18px; bottom: 14px; font-size: 25px; transform: rotate(-4deg); }
+.about-copy p { font-size: clamp(18px, 1.8vw, 21px); margin: 0 0 18px; max-width: 58ch; text-wrap: pretty; }
+.about-copy p:first-child::first-letter { font-family: var(--f-display); font-size: 3.2em; float: left; line-height: .8; margin: 6px 10px 0 0; color: var(--select); }
+.skills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; list-style: none; padding: 0; }
+.skills li { font: 500 13px/1 var(--f-mono); padding: 9px 13px; border-radius: 999px; background: var(--c); color: var(--fixed-ink); border: 1.5px solid var(--fixed-ink); transition: transform .2s; }
+.skills li:hover { transform: translateY(-3px) rotate(-3deg); }
+.now { margin: 30px 0 0; border-top: 1px solid var(--line); }
+.now div { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 16px; padding-block: 12px; border-bottom: 1px solid var(--line); font-size: 16px; }
+.now dt { font-family: var(--f-mono); font-size: 12px; color: var(--muted); padding-top: 3px; }
+.now dd { margin: 0; }
+
+/* ---------- CONTACT ---------- */
+.contact-band h1 em { font-style: italic; background: var(--c-lime); padding-inline: .08em; border-radius: .1em; }
+.contact-row { display: flex; justify-content: space-between; align-items: end; gap: 24px; flex-wrap: wrap; margin-top: 18px; }
+.email { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.email code { font: 500 clamp(16px, 2vw, 22px)/1.2 var(--f-mono); user-select: all; overflow-wrap: anywhere; }
+.copy { font: 600 13px/1 var(--f-mono); border: 2px solid var(--fixed-ink); color: var(--fixed-ink); background: #FFFFFF; padding: 10px 14px; border-radius: 999px; min-height: 40px; }
+.copy:hover { background: var(--fixed-ink); color: #FFFFFF; }
+.socials { display: flex; gap: 10px; flex-wrap: wrap; }
+.socials a { text-decoration: none; font-weight: 700; border: 2px solid var(--fixed-ink); padding: 10px 16px; border-radius: 999px; background: #FFFFFF; min-height: 44px; display: inline-flex; align-items: center; transition: transform .2s, box-shadow .2s; }
+.socials a:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--fixed-ink); }
+.contact-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+
+/* next-page link */
+.next {
+  display: flex; justify-content: space-between; align-items: center; gap: 16px; text-decoration: none;
+  background: var(--c); color: var(--fixed-ink); border: 2px solid var(--fixed-ink); border-radius: calc(var(--radius) * 1.4);
+  padding: 22px 26px; transition: transform .3s cubic-bezier(.3,1.6,.5,1), box-shadow .3s;
+}
+.next.blue { color: #FFFFFF; }
+.next:hover { transform: translate(-4px, -4px); box-shadow: 8px 8px 0 var(--ink); }
+.next .mono { font: 500 12px/1 var(--f-mono); display: block; margin-bottom: 6px; }
+.next strong { font-family: var(--f-display); font-weight: 400; font-size: clamp(30px, 4vw, 48px); line-height: 1; }
+.next .arrow { font-size: 34px; transition: transform .3s; }
+.next:hover .arrow { transform: translateX(8px); }
+
+footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-block: 48px 40px; color: var(--muted); font-size: 14px; }
+footer .mono { font: 500 12px var(--f-mono); }
+
+/* ---------- page wipe ---------- */
+.wipe { position: fixed; inset: 0; z-index: 150; pointer-events: none; transform: scaleY(0); transform-origin: bottom; }
+
+/* ---------- cursors ---------- */
+.has-cursor, .has-cursor * { cursor: none !important; }
+.cur { position: fixed; left: 0; top: 0; z-index: 160; pointer-events: none; opacity: 0; transition: opacity .3s; will-change: transform; }
+.has-cursor .cur.on { opacity: 1; }
+.cur svg { width: 22px; height: 22px; display: block; filter: drop-shadow(0 2px 3px rgba(0,0,0,.25)); }
+.cur-tag { position: absolute; left: 16px; top: 18px; white-space: nowrap; font: 700 12px/1 var(--f-body); padding: 6px 9px; border-radius: 2px 10px 10px 10px; transition: transform .25s cubic-bezier(.3,1.8,.5,1); }
+.cur--you svg path { fill: var(--select); }
+.cur--you .cur-tag { background: var(--select); color: var(--on-select); }
+.cur--you.big .cur-tag { transform: scale(1.12); }
+.cur--minnie svg path { fill: var(--pink); }
+.cur--minnie .cur-tag { background: var(--pink); color: var(--on-pink); }
+.bit { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 90; width: 12px; height: 12px; }
+
+/* ---------- calm mode / reduced motion ---------- */
+.calm *, .calm *::before, .calm *::after { animation: none !important; transition-duration: .01ms !important; }
+.calm .cur { display: none; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* ---------- responsive ---------- */
+@media (max-width: 900px) {
+  .hero-sub { grid-template-columns: 1fr; }
+  .hero-aside { justify-self: start; text-align: left; }
+  .cta-row { justify-content: flex-start; }
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tile-link, .tile-link.wide { grid-column: span 1; }
+  .tile-link.wide { grid-column: span 2; }
+  .flow { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px 0; }
+  .step:nth-child(2)::after, .step:nth-child(2)::before { display: none; }
+  .principles, .contact-cards { grid-template-columns: 1fr; }
+  .play-grid { grid-template-columns: 1fr; }
+  .about-grid { grid-template-columns: 1fr; }
+  .portrait { max-width: 340px; }
+  .s-flower, .drag-hint { display: none; }
+  .s-burst { top: auto; bottom: 30%; right: 4%; width: 90px; height: 90px; font-size: 22px; }
+  .s-dot { top: 12%; right: 6%; width: 64px; height: 64px; font-size: 20px; }
+  .s-blob { width: 90px; height: 76px; bottom: 4%; }
+  .sticky { position: static; transform: rotate(-2deg); }
+}
+@media (max-width: 640px) {
+  body { font-size: 16px; }
+  .tiles { grid-template-columns: 1fr; }
+  .tile-link, .tile-link.wide { grid-column: span 1; min-height: 190px; }
+  .work-grid { grid-template-columns: 1fr; }
+  .work-grid > article:nth-child(even) { margin-top: 0; }
+  .flow { grid-template-columns: 1fr; }
+  .step::after, .step::before { display: none; }
+  .hi-note { top: -50px; right: 0; font-size: 24px; }
+  .brand-name { display: none; }
+  .now div { grid-template-columns: 1fr; gap: 2px; }
+  .toolbar button kbd { display: none; }
+  .s-burst, .s-blob { display: none; }
+  .ratio { margin-left: 0; }
+}
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main" id="skipLink">Skip to content</a>
+
+<!-- Custom cursors (desktop only, off in calm mode) -->
+<div class="cur cur--you" aria-hidden="true">
+  <svg viewBox="0 0 22 22"><path d="M2 1.5 20 9.2l-7.6 2.3-3.2 7.4z" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg>
+  <span class="cur-tag">you</span>
+</div>
+<div class="cur cur--minnie" aria-hidden="true">
+  <svg viewBox="0 0 22 22"><path d="M2 1.5 20 9.2l-7.6 2.3-3.2 7.4z" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg>
+  <span class="cur-tag">minnie</span>
+</div>
+<div class="wipe" aria-hidden="true"></div>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#home" data-cursor="home">
+      <span class="brand-mark" aria-hidden="true">mm</span>
+      <span class="brand-name">Minnie Marin Lopez</span>
+      <span class="sr-only">Minnie Marin Lopez, home</span>
+    </a>
+    <div class="nav-right">
+      <nav aria-label="Main">
+        <ul>
+          <li><a href="#work" data-cursor="see work" style="--dotc: var(--c-blue); --dotink: #FFFFFF"><i aria-hidden="true"></i>Work</a></li>
+          <li><a href="#process" data-cursor="how I work" style="--dotc: var(--c-orange)"><i aria-hidden="true"></i>Process</a></li>
+          <li><a href="#playground" data-cursor="have fun" style="--dotc: var(--c-pink)"><i aria-hidden="true"></i>Playground</a></li>
+          <li><a href="#about" data-cursor="hello" style="--dotc: var(--c-lime)"><i aria-hidden="true"></i>About</a></li>
+          <li><a href="#contact" data-cursor="say hi" style="--dotc: var(--c-violet)"><i aria-hidden="true"></i>Contact</a></li>
+        </ul>
+      </nav>
+      <button type="button" class="calm-btn" id="calmBtn" aria-pressed="false" data-cursor="calm it down"><span aria-hidden="true"></span>Reduce motion</button>
+    </div>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+
+  <!-- ===================== HOME ===================== -->
+  <section class="page" data-page="home" data-color="--c-pink" aria-labelledby="t-home">
+    <div class="wrap">
+      <div>
+        <div class="label">Home / Desktop — 1440 × auto</div>
+        <div class="hero-frame" id="heroFrame">
+          <canvas id="doodle" aria-hidden="true" data-cursor="drawing"></canvas>
+          <div class="doodle-hint hand" aria-hidden="true">draw anything. press V to stop.</div>
+
+          <div class="sticker s-burst shape-burst" aria-hidden="true" data-cursor="drag me"><b>UX!</b></div>
+          <div class="sticker s-flower shape-flower" aria-hidden="true" data-cursor="drag me"></div>
+          <div class="sticker s-dot" aria-hidden="true" data-cursor="drag me"><b>hi!</b></div>
+          <div class="sticker s-blob shape-blob" aria-hidden="true" data-cursor="drag me"></div>
+          <span class="drag-hint hand" aria-hidden="true">these are draggable →</span>
+
+          <div class="hero-top">
+            <span class="status"><i aria-hidden="true"></i>Open to UI/UX opportunities</span>
+            <div class="toolbar" role="toolbar" aria-label="Doodle tools">
+              <button type="button" id="toolMove" aria-pressed="true" data-cursor="move tool">Move <kbd>V</kbd></button>
+              <button type="button" id="toolPen" aria-pressed="false" data-cursor="grab the pen">Pen <kbd>P</kbd></button>
+              <button type="button" id="toolClear" data-cursor="wipe it">Clear</button>
+            </div>
+          </div>
+
+          <div class="name-block">
+            <div class="selected-ring" aria-hidden="true"><span></span><span></span><span></span><span></span><b>Text — Display / 172</b></div>
+            <div class="hi-note hand" aria-hidden="true">
+              hi, that's me
+              <svg viewBox="0 0 56 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6c18-2 34 6 40 32"/><path d="M36 32l8 8 5-11"/></svg>
+            </div>
+            <h1 class="display hero-name" id="t-home" tabindex="-1" aria-label="Minnie Marin Lopez">
+              <span class="line" data-split>Minnie</span>
+              <span class="line" data-split>Marin Lopez</span>
+            </h1>
+          </div>
+
+          <div class="gap-measure" aria-hidden="true"><span>40</span></div>
+
+          <div class="hero-sub">
+            <div>
+              <p class="role">UI/UX Designer · Interaction · Visual · Research</p>
+              <p class="intro">I design interfaces that feel <span class="hl">clear</span>, considered, and a little bit delightful. I sweat the small moments so the big ones feel easy.</p>
+            </div>
+            <div class="hero-aside">
+              <span class="hand" aria-hidden="true">psst… try the pen tool ↑</span>
+              <div class="cta-row">
+                <a class="btn btn-solid" href="#work" data-cursor="let's go">See my work →</a>
+                <a class="btn btn-ghost" href="#contact" data-cursor="say hi">Get in touch</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="explore-head">
+          <div>
+            <div class="label" style="margin-bottom:12px">Pages / Explore</div>
+            <h2 class="display">Pick a page, any page</h2>
+          </div>
+        </div>
+        <div class="tiles">
+          <a class="tile-link wide blue" href="#work" style="--c: var(--c-blue)" data-cursor="see work">
+            <span class="deco shape-burst" style="width:240px;height:240px;right:-50px;top:-60px;background:var(--c-violet)" aria-hidden="true"></span>
+            <span class="mono">Page · Work</span>
+            <span><strong>Selected work</strong></span>
+            <span class="row"><span>Case studies in product and interface design.</span><span class="arrow" aria-hidden="true">→</span></span>
+          </a>
+          <a class="tile-link" href="#process" style="--c: var(--c-orange)" data-cursor="how I work">
+            <span class="deco" style="width:150px;height:150px;right:-40px;top:-40px;border-radius:50%;background:var(--c-yellow)" aria-hidden="true"></span>
+            <span class="mono">Page · Process</span>
+            <span><strong>Process</strong></span>
+            <span class="row"><span>How I go from messy to obvious.</span><span class="arrow" aria-hidden="true">→</span></span>
+          </a>
+          <a class="tile-link" href="#playground" style="--c: var(--c-pink)" data-cursor="have fun">
+            <span class="deco shape-flower" style="width:150px;height:150px;right:-36px;top:-36px;--c:var(--c-orange)" aria-hidden="true"></span>
+            <span class="mono">Page · Playground</span>
+            <span><strong>Playground</strong></span>
+            <span class="row"><span>Tiny interactions to poke at.</span><span class="arrow" aria-hidden="true">→</span></span>
+          </a>
+          <a class="tile-link" href="#about" style="--c: var(--c-lime)" data-cursor="hello">
+            <span class="deco shape-blob" style="width:150px;height:130px;right:-30px;top:-30px;background:var(--c-pink)" aria-hidden="true"></span>
+            <span class="mono">Page · About</span>
+            <span><strong>About</strong></span>
+            <span class="row"><span>Who I am and what I care about.</span><span class="arrow" aria-hidden="true">→</span></span>
+          </a>
+          <a class="tile-link" href="#contact" style="--c: var(--c-violet)" data-cursor="say hi">
+            <span class="deco shape-burst" style="width:160px;height:160px;right:-40px;top:-40px;background:var(--c-lime)" aria-hidden="true"></span>
+            <span class="mono">Page · Contact</span>
+            <span><strong>Contact</strong></span>
+            <span class="row"><span>Say hello. I read everything.</span><span class="arrow" aria-hidden="true">→</span></span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== WORK ===================== -->
+  <!-- Replace each card's title, meta, chip and cover when your case studies are ready -->
+  <section class="page" data-page="work" data-color="--c-blue" data-ink="#FFFFFF" aria-labelledby="t-work" hidden>
+    <div class="wrap">
+      <header class="band">
+        <span class="deco shape-burst" style="width:320px;height:320px;right:-80px;top:-90px;background:var(--c-violet)" aria-hidden="true"></span>
+        <span class="deco" style="width:120px;height:120px;right:22%;bottom:-50px;border-radius:50%;background:var(--c-pink)" aria-hidden="true"></span>
+        <div class="label">Page / Work</div>
+        <h1 class="display" id="t-work" tabindex="-1">Selected work</h1>
+        <p>A few projects I'm proud of, from first sketch to shipped interface.</p>
+        <div class="sticky" aria-hidden="true">Case studies are in the oven. Check back soon!</div>
+      </header>
+
+      <div class="work-grid">
+        <article class="card">
+          <div class="label">project-one.fig</div>
+          <div class="cover" style="--c: var(--c-pink)" data-select data-cursor="coming soon">
+            <span class="grid-lines" aria-hidden="true"></span>
+            <span class="deco shape-flower" style="width:42%;aspect-ratio:1;left:10%;top:12%;--c:var(--c-orange)" aria-hidden="true"></span>
+            <span class="ph">cover image · 4:3</span>
+          </div>
+          <h2>Project title</h2>
+          <div class="meta"><span>Product design · Mobile app</span><span class="chip">Coming soon</span></div>
+        </article>
+        <article class="card">
+          <div class="label">project-two.fig</div>
+          <div class="cover" style="--c: var(--c-lime)" data-select data-cursor="coming soon">
+            <span class="grid-lines" aria-hidden="true"></span>
+            <span class="deco shape-blob" style="width:44%;height:52%;right:8%;bottom:10%;background:var(--c-blue)" aria-hidden="true"></span>
+            <span class="ph">cover image · 4:3</span>
+          </div>
+          <h2>Project title</h2>
+          <div class="meta"><span>UX research · Web</span><span class="chip">Coming soon</span></div>
+        </article>
+        <article class="card">
+          <div class="label">project-three.fig</div>
+          <div class="cover" style="--c: var(--c-orange)" data-select data-cursor="coming soon">
+            <span class="grid-lines" aria-hidden="true"></span>
+            <span class="deco shape-burst" style="width:46%;aspect-ratio:1;left:28%;bottom:-8%;background:var(--c-yellow)" aria-hidden="true"></span>
+            <span class="ph">cover image · 4:3</span>
+          </div>
+          <h2>Project title</h2>
+          <div class="meta"><span>Design system · Dashboard</span><span class="chip">Coming soon</span></div>
+        </article>
+        <article class="card">
+          <div class="label">project-four.fig</div>
+          <div class="cover" style="--c: var(--c-violet)" data-select data-cursor="coming soon">
+            <span class="grid-lines" aria-hidden="true"></span>
+            <span class="deco" style="width:34%;aspect-ratio:1;right:16%;top:12%;border-radius:50%;background:var(--c-pink);border:2px solid #17171F" aria-hidden="true"></span>
+            <span class="ph">cover image · 4:3</span>
+          </div>
+          <h2>Project title</h2>
+          <div class="meta"><span>Interaction design · Prototype</span><span class="chip">Coming soon</span></div>
+        </article>
+      </div>
+
+      <a class="next" href="#process" style="--c: var(--c-orange)" data-cursor="next page"><span><span class="mono">Next page</span><strong>Process</strong></span><span class="arrow" aria-hidden="true">→</span></a>
+    </div>
+  </section>
+
+  <!-- ===================== PROCESS ===================== -->
+  <section class="page" data-page="process" data-color="--c-orange" aria-labelledby="t-process" hidden>
+    <div class="wrap">
+      <header class="band">
+        <span class="deco" style="width:300px;height:300px;right:-70px;top:-80px;border-radius:50%;background:var(--c-yellow)" aria-hidden="true"></span>
+        <span class="deco shape-flower" style="width:150px;height:150px;right:24%;bottom:-40px;--c:var(--c-pink)" aria-hidden="true"></span>
+        <div class="label">Page / Process</div>
+        <h1 class="display" id="t-process" tabindex="-1">From messy to obvious</h1>
+        <p>Every project is different, but the path usually looks something like this, with plenty of loops back.</p>
+      </header>
+
+      <div>
+        <div class="label" style="margin-bottom:24px">Flow / How I work</div>
+        <ol class="flow" style="list-style:none;margin:0;padding:0">
+          <li class="step"><div class="node" style="--c: var(--c-pink)">01</div><h2>Listen</h2><p>Interviews, audits and quiet observation to find the real problem.</p></li>
+          <li class="step"><div class="node" style="--c: var(--c-orange)">02</div><h2>Map</h2><p>User flows, journeys and information architecture before any pixels.</p></li>
+          <li class="step"><div class="node" style="--c: var(--c-lime)">03</div><h2>Make</h2><p>Sketches, wireframes, then high-fidelity prototypes you can click.</p></li>
+          <li class="step"><div class="node" style="--c: var(--c-violet)">04</div><h2>Test</h2><p>Usability sessions, honest feedback, and another round of polish.</p></li>
+        </ol>
+      </div>
+
+      <div>
+        <div class="label" style="margin-bottom:18px">Components / Principles</div>
+        <div class="principles">
+          <div class="principle" data-select><span class="mark shape-burst" style="--c: var(--c-lime);background:var(--c)" aria-hidden="true"></span><h3>Clarity over cleverness</h3><p>If someone has to stop and think about the interface, the interface has more work to do.</p></div>
+          <div class="principle" data-select><span class="mark" style="background:var(--c-blue);border-radius:50%" aria-hidden="true"></span><h3>Accessible by default</h3><p>Contrast, focus states and keyboard paths are part of the first draft, never an afterthought.</p></div>
+          <div class="principle" data-select><span class="mark shape-blob" style="background:var(--c-pink)" aria-hidden="true"></span><h3>Details are the design</h3><p>Empty states, error messages and tiny transitions are where trust gets built.</p></div>
+        </div>
+      </div>
+
+      <a class="next" href="#playground" style="--c: var(--c-pink)" data-cursor="next page"><span><span class="mono">Next page</span><strong>Playground</strong></span><span class="arrow" aria-hidden="true">→</span></a>
+    </div>
+  </section>
+
+  <!-- ===================== PLAYGROUND ===================== -->
+  <section class="page" data-page="playground" data-color="--c-pink" aria-labelledby="t-play" hidden>
+    <div class="wrap">
+      <header class="band">
+        <span class="deco shape-burst" style="width:300px;height:300px;right:-70px;top:-80px;background:var(--c-orange)" aria-hidden="true"></span>
+        <span class="deco shape-blob" style="width:150px;height:130px;right:26%;bottom:-50px;background:var(--c-lime)" aria-hidden="true"></span>
+        <div class="label">Page / Playground</div>
+        <h1 class="display" id="t-play" tabindex="-1">Playground</h1>
+        <p>Small interactions I like to tinker with. Go ahead and poke them.</p>
+      </header>
+
+      <div class="play-grid">
+        <div class="tile" data-select>
+          <div><div class="label">Toggle / Lights</div><h2>Lights switch</h2></div>
+          <div class="stage"><button type="button" class="switch" id="lights" role="switch" aria-checked="false" aria-label="Dark mode" data-cursor="flip it"></button></div>
+          <p id="lightsText">A switch should feel like a switch. This one runs the whole site.</p>
+        </div>
+        <div class="tile" data-select>
+          <div><div class="label">Button / Squish</div><h2>Squishy button</h2></div>
+          <div class="stage"><button type="button" class="squish" id="squish" data-cursor="press me">press<br>me</button></div>
+          <div class="count" id="squishCount" aria-live="polite">0 presses</div>
+        </div>
+        <div class="tile" data-select>
+          <div><div class="label">Generator / Palette</div><h2>Palette shuffle</h2></div>
+          <div class="stage"><button type="button" class="palette" id="palette" aria-label="Shuffle palette" data-cursor="shuffle"></button></div>
+          <p>Click for a fresh five-color palette. Each label picks the more readable of black or white.</p>
+        </div>
+        <div class="tile" data-select>
+          <div><div class="label">Tool / Contrast checker</div><h2>Contrast checker</h2></div>
+          <div class="checker">
+            <div class="preview" id="cPreview"><strong>Readable?</strong>The quick brown fox checks its contrast.</div>
+            <div class="inputs">
+              <label for="cFg"><input type="color" id="cFg" value="#17171f">Text</label>
+              <label for="cBg"><input type="color" id="cBg" value="#c8f169">Background</label>
+              <span class="ratio" id="cRatio" aria-live="polite">–</span>
+            </div>
+            <div class="results" id="cResults"></div>
+          </div>
+          <p>WCAG asks for 4.5:1 on body text and 3:1 on large text.</p>
+        </div>
+      </div>
+
+      <a class="next" href="#about" style="--c: var(--c-lime)" data-cursor="next page"><span><span class="mono">Next page</span><strong>About</strong></span><span class="arrow" aria-hidden="true">→</span></a>
+    </div>
+  </section>
+
+  <!-- ===================== ABOUT ===================== -->
+  <!-- Edit the copy below to make it yours -->
+  <section class="page" data-page="about" data-color="--c-lime" aria-labelledby="t-about" hidden>
+    <div class="wrap">
+      <header class="band">
+        <span class="deco shape-flower" style="width:280px;height:280px;right:-60px;top:-70px;--c:var(--c-violet)" aria-hidden="true"></span>
+        <span class="deco" style="width:110px;height:110px;right:28%;bottom:-40px;border-radius:50%;background:var(--c-orange)" aria-hidden="true"></span>
+        <div class="label">Page / About</div>
+        <h1 class="display" id="t-about" tabindex="-1">Hi, I'm Minnie.</h1>
+        <p>Designer, sketcher, and lifelong noticer of small details.</p>
+      </header>
+
+      <div class="about-grid">
+        <div>
+          <div class="label" style="margin-bottom:14px">Image / Portrait</div>
+          <div class="portrait" data-select>
+            <span class="deco shape-burst" style="width:70%;aspect-ratio:1;left:-14%;top:-10%;background:var(--c-pink)" aria-hidden="true"></span>
+            <span class="deco shape-blob" style="width:50%;height:40%;right:-10%;bottom:6%;background:var(--c-blue)" aria-hidden="true"></span>
+            <div class="face" aria-hidden="true">MML</div>
+            <span class="hand">photo goes here</span>
+          </div>
+        </div>
+        <div>
+          <div class="label" style="margin-bottom:14px">Text / About me</div>
+          <div class="about-copy">
+            <p>I'm a UI/UX designer who cares about the small moments in an interface: the empty state, the error message, the button that just feels good to press.</p>
+            <p>I like to start with people and their problems, sketch until the idea is simple, and then make it beautiful. Good design should feel obvious once it exists.</p>
+          </div>
+          <h2 class="sr-only">Skills</h2>
+          <ul class="skills">
+            <li style="--c: var(--c-pink)">User research</li>
+            <li style="--c: var(--c-orange)">Wireframing</li>
+            <li style="--c: var(--c-lime)">Prototyping</li>
+            <li style="--c: var(--c-violet)">Visual design</li>
+            <li style="--c: var(--c-yellow)">Design systems</li>
+            <li style="--c: var(--c-pink)">Usability testing</li>
+            <li style="--c: var(--c-orange)">Accessibility</li>
+            <li style="--c: var(--c-lime)">Interaction design</li>
+          </ul>
+          <dl class="now">
+            <div><dt>Focus</dt><dd>Product &amp; interface design</dd></div>
+            <div><dt>Currently</dt><dd>Writing up my latest case studies</dd></div>
+            <div><dt>Loves</dt><dd>Micro-interactions, tidy type scales, a good sketchbook</dd></div>
+          </dl>
+        </div>
+      </div>
+
+      <a class="next" href="#contact" style="--c: var(--c-violet)" data-cursor="next page"><span><span class="mono">Next page</span><strong>Contact</strong></span><span class="arrow" aria-hidden="true">→</span></a>
+    </div>
+  </section>
+
+  <!-- ===================== CONTACT ===================== -->
+  <!-- Swap in your real email and links -->
+  <section class="page" data-page="contact" data-color="--c-violet" aria-labelledby="t-contact" hidden>
+    <div class="wrap">
+      <header class="band contact-band">
+        <span class="deco shape-burst" style="width:340px;height:340px;right:-90px;top:-100px;background:var(--c-pink)" aria-hidden="true"></span>
+        <span class="deco shape-flower" style="width:140px;height:140px;right:30%;bottom:-50px;--c:var(--c-yellow)" aria-hidden="true"></span>
+        <div class="label">Page / Contact</div>
+        <h1 class="display" id="t-contact" tabindex="-1">Let's make<br>something <em>good.</em></h1>
+        <p>Open to full-time roles, freelance projects, and friendly design chats.</p>
+        <div class="contact-row">
+          <div class="email">
+            <code id="emailText">hello@minniemarinlopez.com</code>
+            <button type="button" class="copy" id="copyEmail" data-cursor="copy">Copy email</button>
+            <span class="sr-only" id="copyStatus" aria-live="polite"></span>
+          </div>
+          <div class="socials">
+            <a href="https://www.linkedin.com/" data-cursor="linkedin">LinkedIn</a>
+            <a href="https://dribbble.com/" data-cursor="dribbble">Dribbble</a>
+            <a href="https://read.cv/" data-cursor="resume">Résumé</a>
+          </div>
+        </div>
+      </header>
+
+      <div class="contact-cards">
+        <div class="principle" data-select><span class="mark shape-burst" style="background:var(--c-orange)" aria-hidden="true"></span><h3>Roles</h3><p>Product designer, UI/UX designer, or interaction designer on a team that ships.</p></div>
+        <div class="principle" data-select><span class="mark" style="background:var(--c-lime);border-radius:50%" aria-hidden="true"></span><h3>Freelance</h3><p>Websites, app redesigns, design systems and usability reviews.</p></div>
+        <div class="principle" data-select><span class="mark shape-blob" style="background:var(--c-pink)" aria-hidden="true"></span><h3>Just saying hi</h3><p>Students, fellow designers and curious people are always welcome.</p></div>
+      </div>
+
+      <a class="next blue" href="#home" style="--c: var(--c-blue)" data-cursor="back home"><span><span class="mono">Back to start</span><strong>Home</strong></span><span class="arrow" aria-hidden="true">→</span></a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Minnie Marin Lopez</span>
+    <span class="mono">tip: click anywhere on the background</span>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const root = document.documentElement;
+  root.lang = 'en';
+  const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const css = n => getComputedStyle(root).getPropertyValue(n).trim();
+  const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+
+  /* ---------- calm mode (reduced motion) ---------- */
+  const calmBtn = document.getElementById('calmBtn');
+  const saved = store.get('calm');
+  let calm = saved ? saved === '1' : matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const applyCalm = () => {
+    root.classList.toggle('calm', calm);
+    root.classList.toggle('has-cursor', fine && !calm);
+    calmBtn.setAttribute('aria-pressed', calm);
+  };
+  calmBtn.onclick = () => { calm = !calm; store.set('calm', calm ? '1' : '0'); applyCalm(); };
+  applyCalm();
+
+  /* ---------- pages (hash routing) ---------- */
+  const pages = [...document.querySelectorAll('.page')];
+  const names = { home: 'Home', work: 'Work', process: 'Process', playground: 'Playground', about: 'About', contact: 'Contact' };
+  const wipe = document.querySelector('.wipe');
+  let current = null, busy = false;
+  const show = (id, focus) => {
+    pages.forEach(p => p.hidden = p.dataset.page !== id);
+    const p = pages.find(p => p.dataset.page === id);
+    root.style.setProperty('--page', `var(${p.dataset.color})`);
+    root.style.setProperty('--page-ink', p.dataset.ink || 'var(--fixed-ink)');
+    document.querySelectorAll('.nav ul a').forEach(a => {
+      if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'page');
+      else a.removeAttribute('aria-current');
+    });
+    document.title = id === 'home' ? 'Minnie Marin Lopez' : `${names[id]} · Minnie Marin Lopez`;
+    scrollTo(0, 0);
+    if (focus) p.querySelector('h1').focus({ preventScroll: true });
+    current = id;
+    if (id === 'home') requestAnimationFrame(fit);
+  };
+  const go = (id, focus = true) => {
+    if (!names[id]) id = 'home';
+    if (id === current || busy) return;
+    if (calm || current === null) return show(id, focus && current !== null);
+    busy = true;
+    const p = pages.find(p => p.dataset.page === id);
+    wipe.style.background = css(p.dataset.color);
+    wipe.animate([{ transform: 'scaleY(0)', transformOrigin: 'bottom' }, { transform: 'scaleY(1)', transformOrigin: 'bottom' }], { duration: 260, easing: 'cubic-bezier(.7,0,.3,1)', fill: 'forwards' })
+      .onfinish = () => {
+        show(id, focus);
+        wipe.animate([{ transform: 'scaleY(1)', transformOrigin: 'top' }, { transform: 'scaleY(0)', transformOrigin: 'top' }], { duration: 300, easing: 'cubic-bezier(.7,0,.3,1)', fill: 'forwards' })
+          .onfinish = () => { busy = false; };
+      };
+  };
+  document.addEventListener('click', e => {
+    const a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    const id = a.getAttribute('href').slice(1);
+    if (a.id === 'skipLink') { e.preventDefault(); document.getElementById('main').focus(); return; }
+    if (!names[id]) return;
+    e.preventDefault();
+    try { history.pushState(null, '', '#' + id); } catch {}
+    go(id);
+  });
+  addEventListener('popstate', () => go(location.hash.slice(1)));
+  addEventListener('hashchange', () => go(location.hash.slice(1)));
+
+  /* split hero name into letters for hover wiggle */
+  document.querySelectorAll('[data-split]').forEach(el => {
+    el.setAttribute('aria-hidden', 'true');
+    el.innerHTML = [...el.textContent].map(c => c === ' ' ? ' ' : `<span class="ch">${c}</span>`).join('');
+  });
+
+  /* selection size badges */
+  document.querySelectorAll('[data-select]').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      const r = el.getBoundingClientRect();
+      el.dataset.size = `${Math.round(r.width)} × ${Math.round(r.height)}`;
+    });
+  });
+
+  /* ---------- doodle canvas ---------- */
+  const heroFrame = document.getElementById('heroFrame');
+  const canvas = document.getElementById('doodle');
+  const ctx = canvas.getContext('2d');
+  const strokes = [];
+  let drawing = null;
+  const redraw = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = css('--pink'); ctx.lineWidth = 3.5; ctx.lineCap = ctx.lineJoin = 'round';
+    strokes.forEach(s => {
+      ctx.beginPath(); ctx.moveTo(s[0].x, s[0].y);
+      for (let i = 1; i < s.length - 1; i++) {
+        const mx = (s[i].x + s[i + 1].x) / 2, my = (s[i].y + s[i + 1].y) / 2;
+        ctx.quadraticCurveTo(s[i].x, s[i].y, mx, my);
+      }
+      const l = s[s.length - 1]; ctx.lineTo(l.x, l.y); ctx.stroke();
+    });
+  };
+  function fit() {
+    const r = heroFrame.getBoundingClientRect(), d = devicePixelRatio || 1;
+    if (!r.width) return;
+    canvas.width = r.width * d; canvas.height = r.height * d;
+    ctx.setTransform(d, 0, 0, d, 0, 0); redraw();
+  }
+  const pt = e => { const r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+  canvas.addEventListener('pointerdown', e => { drawing = [pt(e)]; strokes.push(drawing); canvas.setPointerCapture(e.pointerId); });
+  canvas.addEventListener('pointermove', e => { if (drawing) { drawing.push(pt(e)); redraw(); } });
+  const end = () => { drawing = null; };
+  canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', end);
+  new ResizeObserver(fit).observe(heroFrame);
+
+  const bMove = document.getElementById('toolMove'), bPen = document.getElementById('toolPen');
+  const setTool = pen => {
+    heroFrame.classList.toggle('pen-on', pen);
+    bPen.setAttribute('aria-pressed', pen); bMove.setAttribute('aria-pressed', !pen);
+  };
+  bMove.onclick = () => setTool(false);
+  bPen.onclick = () => setTool(true);
+  document.getElementById('toolClear').onclick = () => { strokes.length = 0; redraw(); };
+  addEventListener('keydown', e => {
+    if (e.metaKey || e.ctrlKey || e.altKey || current !== 'home' || e.target.closest('input, textarea')) return;
+    if (e.key === 'p' || e.key === 'P') setTool(true);
+    if (e.key === 'v' || e.key === 'V' || e.key === 'Escape') setTool(false);
+  });
+
+  /* ---------- draggable stickers ---------- */
+  document.querySelectorAll('.sticker').forEach(s => {
+    let ox = 0, oy = 0;
+    s.addEventListener('pointerdown', e => {
+      const fr = heroFrame.getBoundingClientRect(), r = s.getBoundingClientRect();
+      ox = e.clientX - r.left; oy = e.clientY - r.top;
+      s.style.left = (r.left - fr.left) + 'px'; s.style.top = (r.top - fr.top) + 'px';
+      s.style.right = s.style.bottom = 'auto';
+      s.classList.add('dragging'); s.setPointerCapture(e.pointerId);
+    });
+    s.addEventListener('pointermove', e => {
+      if (!s.classList.contains('dragging')) return;
+      const fr = heroFrame.getBoundingClientRect();
+      const x = Math.max(-20, Math.min(fr.width - s.offsetWidth + 20, e.clientX - fr.left - ox));
+      const y = Math.max(-20, Math.min(fr.height - s.offsetHeight + 20, e.clientY - fr.top - oy));
+      s.style.left = x + 'px'; s.style.top = y + 'px';
+    });
+    const stop = () => s.classList.remove('dragging');
+    s.addEventListener('pointerup', stop); s.addEventListener('pointercancel', stop);
+  });
+
+  /* ---------- cursors ---------- */
+  const you = document.querySelector('.cur--you');
+  const minnie = document.querySelector('.cur--minnie');
+  const youTag = you.querySelector('.cur-tag');
+  const minTag = minnie.querySelector('.cur-tag');
+  const m = { x: innerWidth / 2, y: innerHeight / 2 };
+  const g = { x: innerWidth * .7, y: innerHeight * .3 };
+  let lastMove = 0, wander = null, wanderAt = 0, msgAt = 0, msgI = 0;
+  const lines = ['minnie', 'psst, try the pen', 'click anywhere', 'drag the stickers', 'case studies soon!', 'hi there'];
+  if (fine) {
+    addEventListener('mousemove', e => {
+      m.x = e.clientX; m.y = e.clientY; lastMove = performance.now();
+      you.style.transform = `translate3d(${m.x - 2}px, ${m.y - 2}px, 0)`;
+      you.classList.add('on');
+    }, { passive: true });
+    document.addEventListener('mouseleave', () => you.classList.remove('on'));
+    document.addEventListener('mouseover', e => {
+      const t = e.target.closest('[data-cursor]');
+      const pen = heroFrame.classList.contains('pen-on') && e.target === canvas;
+      youTag.textContent = pen ? 'drawing' : t ? t.dataset.cursor : 'you';
+      you.classList.toggle('big', !!t);
+    });
+    const tick = now => {
+      /* minnie only shows up after the visitor has been still for a few seconds */
+      const idle = lastMove > 0 && now - lastMove > 4000;
+      if (!calm && idle) {
+        if (!minnie.classList.contains('on')) {
+          g.x = m.x + 40; g.y = m.y + 30; msgAt = 0;
+          minnie.classList.add('on');
+        }
+        if (!wander || now > wanderAt) {
+          wander = { x: 80 + Math.random() * (innerWidth - 200), y: 100 + Math.random() * (innerHeight - 200) };
+          wanderAt = now + 2200 + Math.random() * 1800;
+        }
+        if (now > msgAt) { minTag.textContent = lines[msgI++ % lines.length]; msgAt = now + 3200; }
+        g.x += (wander.x - g.x) * .025; g.y += (wander.y - g.y) * .025;
+        minnie.style.transform = `translate3d(${g.x}px, ${g.y}px, 0)`;
+      } else if (minnie.classList.contains('on')) {
+        minnie.classList.remove('on'); wander = null;
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
+  /* ---------- click confetti ---------- */
+  document.addEventListener('click', e => {
+    if (calm || e.target.closest('a, button, canvas, input, label, .sticker, .toolbar')) return;
+    const colors = ['--c-blue', '--c-orange', '--c-pink', '--c-lime', '--c-violet'].map(css);
+    for (let i = 0; i < 10; i++) {
+      const b = document.createElement('span');
+      b.className = 'bit';
+      const c = colors[i % colors.length], shape = i % 3;
+      if (shape === 0) { b.style.background = c; b.style.borderRadius = '50%'; }
+      else if (shape === 1) { b.style.background = c; b.style.borderRadius = '2px'; }
+      else { b.style.width = b.style.height = '0'; b.style.borderLeft = b.style.borderRight = '7px solid transparent'; b.style.borderBottom = `12px solid ${c}`; }
+      document.body.appendChild(b);
+      const a = Math.random() * Math.PI * 2, d = 40 + Math.random() * 70;
+      b.animate([
+        { transform: `translate(${e.clientX - 6}px, ${e.clientY - 6}px) rotate(0) scale(1)`, opacity: 1 },
+        { transform: `translate(${e.clientX - 6 + Math.cos(a) * d}px, ${e.clientY - 6 + Math.sin(a) * d + 30}px) rotate(${Math.random() * 540 - 270}deg) scale(.4)`, opacity: 0 }
+      ], { duration: 800 + Math.random() * 400, easing: 'cubic-bezier(.2,.7,.3,1)' }).onfinish = () => b.remove();
+    }
+  });
+
+  /* ---------- contrast math ---------- */
+  const lum = hex => {
+    const n = parseInt(hex.slice(1), 16);
+    return [n >> 16, (n >> 8) & 255, n & 255].map(v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; })
+      .reduce((s, v, i) => s + v * [.2126, .7152, .0722][i], 0);
+  };
+  const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); };
+
+  /* ---------- playground ---------- */
+  const lights = document.getElementById('lights'), lightsText = document.getElementById('lightsText');
+  const isDark = () => root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  const syncLights = () => {
+    lights.setAttribute('aria-checked', isDark());
+    lightsText.textContent = isDark() ? 'Lights off. Dark mode got the same care as light mode.' : 'A switch should feel like a switch. This one runs the whole site.';
+  };
+  lights.onclick = () => { root.dataset.theme = isDark() ? 'light' : 'dark'; syncLights(); requestAnimationFrame(redraw); };
+  syncLights();
+
+  let presses = 0;
+  const squishCount = document.getElementById('squishCount');
+  const quips = { 1: 'nice.', 5: 'satisfying, right?', 10: "you're committed", 25: 'ok this is a lot', 50: "50 presses. that's engagement." };
+  document.getElementById('squish').onclick = () => {
+    presses++;
+    squishCount.textContent = `${presses} press${presses === 1 ? '' : 'es'}${quips[presses] ? ' · ' + quips[presses] : ''}`;
+  };
+
+  const palette = document.getElementById('palette');
+  const hsl2hex = (h, s, l) => {
+    s /= 100; l /= 100;
+    const f = n => { const k = (n + h / 30) % 12, a = s * Math.min(l, 1 - l); return Math.round(255 * (l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)))).toString(16).padStart(2, '0'); };
+    return `#${f(0)}${f(8)}${f(4)}`.toUpperCase();
+  };
+  const shuffle = () => {
+    const base = Math.random() * 360, mode = Math.floor(Math.random() * 3);
+    const hues = mode === 0 ? [0, 25, 50, 180, 205] : mode === 1 ? [0, 30, 150, 180, 330] : [0, 120, 240, 60, 300];
+    const ls = [22, 45, 62, 78, 92];
+    palette.innerHTML = hues.map((o, i) => {
+      const hex = hsl2hex((base + o) % 360, 55 + Math.random() * 30, ls[i]);
+      const txt = ratio(hex, '#17171F') >= ratio(hex, '#FFFFFF') ? '#17171F' : '#FFFFFF';
+      return `<span style="background:${hex};color:${txt}">${hex}</span>`;
+    }).join('');
+    palette.setAttribute('aria-label', 'Shuffle palette. Current colors: ' + [...palette.children].map(s => s.textContent).join(', '));
+  };
+  palette.onclick = shuffle; shuffle();
+
+  const cFg = document.getElementById('cFg'), cBg = document.getElementById('cBg');
+  const cPreview = document.getElementById('cPreview'), cRatio = document.getElementById('cRatio'), cResults = document.getElementById('cResults');
+  const check = () => {
+    const r = ratio(cFg.value, cBg.value);
+    cPreview.style.color = cFg.value; cPreview.style.background = cBg.value;
+    cRatio.textContent = r.toFixed(2) + ':1';
+    cResults.innerHTML = [['AA text', 4.5], ['AA large', 3], ['AAA text', 7]]
+      .map(([n, t]) => `<span class="res ${r >= t ? 'pass' : 'fail'}">${r >= t ? '✓ Pass' : '✕ Fail'} · ${n}</span>`).join('');
+  };
+  cFg.oninput = cBg.oninput = check; check();
+
+  /* ---------- copy email ---------- */
+  const copyBtn = document.getElementById('copyEmail'), emailText = document.getElementById('emailText'), copyStatus = document.getElementById('copyStatus');
+  copyBtn.onclick = () => {
+    const say = (t, s) => { copyBtn.textContent = t; copyStatus.textContent = s; setTimeout(() => { copyBtn.textContent = 'Copy email'; copyStatus.textContent = ''; }, 1800); };
+    const fallback = () => { const sel = getSelection(), r = document.createRange(); r.selectNodeContents(emailText); sel.removeAllRanges(); sel.addRange(r); say('Selected', 'Email address selected. Press Command or Control C to copy.'); };
+    try { navigator.clipboard.writeText(emailText.textContent).then(() => say('Copied', 'Email address copied.'), fallback); } catch { fallback(); }
+  };
+
+  go(location.hash.slice(1), false);
+})();
+</script>
+</body>
+</html>
