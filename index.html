@@ -10,8 +10,8 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Figtree:wght@400;500;600;700&family=Gloock&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: a design-tool canvas. Every nav item is its own page with its own color,
-   a big colored header band, and stickers you can drag. Selection boxes, a multiplayer
-   "minnie" cursor and a doodle pen carry the UI/UX theme. All text pairs pass WCAG AA. */
+   a big colored header band, and stickers you can drag. Selection boxes, a custom
+   cursor and a doodle pen carry the UI/UX theme. All text pairs pass WCAG AA. */
 :root {
   /* theme neutrals + text-safe accents */
   --bg: #EEF0F4;
@@ -470,8 +470,6 @@ footer .mono { font: 500 12px var(--f-mono); }
 .cur--you svg path { fill: var(--select); }
 .cur--you .cur-tag { background: var(--select); color: var(--on-select); }
 .cur--you.big .cur-tag { transform: scale(1.12); }
-.cur--minnie svg path { fill: var(--pink); }
-.cur--minnie .cur-tag { background: var(--pink); color: var(--on-pink); }
 .bit { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 90; width: 12px; height: 12px; }
 
 /* ---------- calm mode / reduced motion ---------- */
@@ -523,10 +521,6 @@ footer .mono { font: 500 12px var(--f-mono); }
 <div class="cur cur--you" aria-hidden="true">
   <svg viewBox="0 0 22 22"><path d="M2 1.5 20 9.2l-7.6 2.3-3.2 7.4z" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg>
   <span class="cur-tag">you</span>
-</div>
-<div class="cur cur--minnie" aria-hidden="true">
-  <svg viewBox="0 0 22 22"><path d="M2 1.5 20 9.2l-7.6 2.3-3.2 7.4z" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg>
-  <span class="cur-tag">minnie</span>
 </div>
 <div class="wipe" aria-hidden="true"></div>
 
@@ -1044,16 +1038,11 @@ footer .mono { font: 500 12px var(--f-mono); }
 
   /* ---------- cursors ---------- */
   const you = document.querySelector('.cur--you');
-  const minnie = document.querySelector('.cur--minnie');
   const youTag = you.querySelector('.cur-tag');
-  const minTag = minnie.querySelector('.cur-tag');
   const m = { x: innerWidth / 2, y: innerHeight / 2 };
-  const g = { x: innerWidth * .7, y: innerHeight * .3 };
-  let lastMove = 0, wander = null, wanderAt = 0, msgAt = 0, msgI = 0;
-  const lines = ['minnie', 'psst, try the pen', 'click anywhere', 'drag the stickers', 'case studies soon!', 'hi there'];
   if (fine) {
     addEventListener('mousemove', e => {
-      m.x = e.clientX; m.y = e.clientY; lastMove = performance.now();
+      m.x = e.clientX; m.y = e.clientY;
       you.style.transform = `translate3d(${m.x - 2}px, ${m.y - 2}px, 0)`;
       you.classList.add('on');
     }, { passive: true });
@@ -1064,27 +1053,6 @@ footer .mono { font: 500 12px var(--f-mono); }
       youTag.textContent = pen ? 'drawing' : t ? t.dataset.cursor : 'you';
       you.classList.toggle('big', !!t);
     });
-    const tick = now => {
-      /* minnie only shows up after the visitor has been still for a few seconds */
-      const idle = lastMove > 0 && now - lastMove > 4000;
-      if (!calm && idle) {
-        if (!minnie.classList.contains('on')) {
-          g.x = m.x + 40; g.y = m.y + 30; msgAt = 0;
-          minnie.classList.add('on');
-        }
-        if (!wander || now > wanderAt) {
-          wander = { x: 80 + Math.random() * (innerWidth - 200), y: 100 + Math.random() * (innerHeight - 200) };
-          wanderAt = now + 2200 + Math.random() * 1800;
-        }
-        if (now > msgAt) { minTag.textContent = lines[msgI++ % lines.length]; msgAt = now + 3200; }
-        g.x += (wander.x - g.x) * .025; g.y += (wander.y - g.y) * .025;
-        minnie.style.transform = `translate3d(${g.x}px, ${g.y}px, 0)`;
-      } else if (minnie.classList.contains('on')) {
-        minnie.classList.remove('on'); wander = null;
-      }
-      requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
   }
 
   /* ---------- click confetti ---------- */
